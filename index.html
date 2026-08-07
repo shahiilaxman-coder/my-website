@@ -1,363 +1,787 @@
 <!DOCTYPE html>
-<html lang="ne">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>💕 Love Calculator</title>
+    <title>💖 Love & Life - Ultimate App</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💖</text></svg>">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body {
-            font-family: 'Segoe UI', system-ui, sans-serif;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             min-height: 100vh;
-            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            color: #fff;
             position: relative;
             overflow-x: hidden;
+            padding-bottom: 80px;
         }
-        .hearts-container {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
+
+        @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+        @keyframes heartbeat { 0%,100%{transform:scale(1)} 14%{transform:scale(1.3)} 28%{transform:scale(1)} 42%{transform:scale(1.3)} 70%{transform:scale(1)} }
+        @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+        @keyframes particle-float { 0%{transform:translateY(110vh) rotate(0deg);opacity:0} 10%{opacity:0.5} 90%{opacity:0.5} 100%{transform:translateY(-10vh) rotate(720deg);opacity:0} }
+        @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-10px)} 40%{transform:translateX(10px)} 60%{transform:translateX(-10px)} 80%{transform:translateX(10px)} }
+        @keyframes slideIn { from{opacity:0;transform:translateX(-20px)} to{opacity:1;transform:translateX(0)} }
+        @keyframes glow-pulse { 0%,100%{box-shadow:0 25px 80px rgba(0,0,0,0.5)} 50%{box-shadow:0 25px 80px rgba(232,67,147,0.2),0 0 60px rgba(232,67,147,0.1)} }
+
+        .particle { position: fixed; pointer-events: none; animation: particle-float linear infinite; z-index: 0; }
+
+        /* Navigation */
+        nav {
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(15,12,41,0.9); backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding: 0.8rem 1rem;
+        }
+        .nav-inner { max-width: 900px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
+        .nav-brand { font-size: 1.3rem; font-weight: 800; background: linear-gradient(135deg,#ff6b6b,#feca57,#ff9ff3); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .nav-btn {
+            padding: 0.5rem 1rem; border: none; border-radius: 0.6rem;
+            background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.6);
+            cursor: pointer; font-size: 0.85rem; transition: all 0.3s;
+        }
+        .nav-btn.active { background: rgba(255,255,255,0.2) !important; color: #fff !important; box-shadow: 0 0 20px rgba(255,255,255,0.1); }
+        .nav-btn:hover { background: rgba(255,255,255,0.15); color: #fff; }
+
+        /* Main Content */
+        .main-container { max-width: 900px; margin: 0 auto; padding: 2rem 1rem; position: relative; z-index: 1; min-height: calc(100vh - 140px); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Cards */
+        .glass-card {
+            background: rgba(255,255,255,0.05); backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 2rem;
+            padding: 2.5rem 2rem; text-align: center;
+            box-shadow: 0 25px 80px rgba(0,0,0,0.5);
+            position: relative; overflow: hidden;
+            animation: glow-pulse 4s ease-in-out infinite;
+        }
+        .glass-card::before {
+            content: ''; position: absolute; top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(232,67,147,0.1) 0%, transparent 70%);
             pointer-events: none;
-            z-index: 0;
-            overflow: hidden;
         }
-        .heart-particle {
-            position: absolute;
-            color: rgba(255,255,255,0.6);
-            animation: float linear infinite;
-            pointer-events: none;
+
+        .section-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 1.5rem; padding: 1.5rem; margin-bottom: 1.5rem;
         }
-        @keyframes float {
-            0% { transform: translateY(110vh) scale(0); opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { transform: translateY(-10vh) scale(1); opacity: 0; }
-        }
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.2); }
-        }
-        .card {
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 2rem;
-            padding: 3rem 2.5rem;
-            max-width: 500px;
-            width: 100%;
-            box-shadow: 0 25px 80px rgba(255,105,180,0.3);
-            z-index: 1;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-        .top-bar {
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 6px;
-            background: linear-gradient(90deg, #ff6b6b, #feca57, #ff9ff3, #54a0ff);
-        }
-        .title-icon { font-size: 3rem; margin-bottom: 0.5rem; }
-        h1 {
-            font-size: 1.8rem;
-            color: #e84393;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-        }
-        .subtitle {
-            color: #888;
-            margin-top: 0.5rem;
-            font-size: 0.95rem;
-        }
-        .input-row {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-            justify-content: center;
-            margin: 2rem 0 1.5rem;
-            flex-wrap: wrap;
-        }
-        .input-group {
-            flex: 1;
-            min-width: 140px;
-            text-align: left;
-        }
-        .input-group label {
-            display: block;
-            color: #e84393;
-            font-weight: 600;
-            margin-bottom: 0.4rem;
-            font-size: 0.9rem;
-        }
-        .input-group input {
-            width: 100%;
-            padding: 0.9rem 1rem;
-            border: 2px solid #ffcdd2;
-            border-radius: 1rem;
-            font-size: 1rem;
-            outline: none;
-            transition: all 0.3s;
-            background: #fff5f5;
-        }
-        .input-group input:focus {
-            border-color: #e84393;
-            box-shadow: 0 0 0 4px rgba(232,67,147,0.15);
-        }
-        .heart-divider {
-            font-size: 2rem;
-            color: #ff6b6b;
-            animation: pulse 1.5s infinite;
-        }
-        .btn-calculate {
-            width: 100%;
-            padding: 1rem;
-            border: none;
-            border-radius: 1rem;
-            background: linear-gradient(135deg, #e84393 0%, #fd79a8 100%);
-            color: white;
-            font-size: 1.1rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 10px 30px rgba(232,67,147,0.3);
-        }
-        .btn-calculate:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 15px 40px rgba(232,67,147,0.4);
-        }
-        .result-section { display: none; margin-top: 2rem; }
-        .circle-container {
-            position: relative;
-            width: 200px;
-            height: 200px;
-            margin: 0 auto 1.5rem;
-        }
-        .percentage-text {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-        }
-        .percentage-text .num {
-            font-size: 3rem;
-            font-weight: 800;
-            color: #e84393;
-        }
-        .percentage-text .label {
-            font-size: 0.8rem;
-            color: #888;
-        }
-        .names-display {
-            font-size: 1.1rem;
-            color: #555;
-            margin-bottom: 1rem;
-            font-weight: 600;
-        }
-        .status-badge {
-            display: inline-block;
-            padding: 0.6rem 1.5rem;
-            border-radius: 2rem;
-            font-weight: 700;
-            font-size: 1rem;
-            margin-bottom: 1rem;
-        }
-        .message {
-            color: #666;
-            font-size: 0.95rem;
-            line-height: 1.6;
-            margin: 0;
-        }
-        .btn-reset {
-            margin-top: 1.5rem;
-            padding: 0.8rem 2rem;
-            border: 2px solid #e84393;
-            border-radius: 1rem;
-            background: transparent;
-            color: #e84393;
-            font-weight: 600;
-            cursor: pointer;
+
+        /* Inputs */
+        input, select {
+            padding: 0.9rem 1.2rem; border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 1rem; background: rgba(255,255,255,0.05);
+            color: #fff; outline: none; font-size: 1rem; width: 100%;
             transition: all 0.3s;
         }
-        .btn-reset:hover {
-            background: #e84393;
-            color: white;
+        input::placeholder { color: rgba(255,255,255,0.3); }
+        input:focus, select:focus { border-color: #ff6b6b; box-shadow: 0 0 20px rgba(255,107,107,0.3); }
+        select option { background: #302b63; }
+
+        /* Buttons */
+        .btn-primary {
+            padding: 1rem; border: none; border-radius: 1rem;
+            background: linear-gradient(135deg,#ff6b6b,#e84393);
+            color: #fff; font-weight: 700; font-size: 1rem;
+            cursor: pointer; letter-spacing: 2px; text-transform: uppercase;
+            box-shadow: 0 10px 40px rgba(232,67,147,0.4);
+            transition: all 0.3s; width: 100%;
         }
-        .footer-note {
-            margin-top: 1.5rem;
-            color: rgba(255,255,255,0.8);
-            font-size: 0.85rem;
-            z-index: 1;
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 15px 50px rgba(232,67,147,0.5); }
+        
+        .btn-secondary {
+            padding: 0.7rem 1.5rem; border: none; border-radius: 1rem;
+            background: linear-gradient(135deg,#ff6b6b,#e84393);
+            color: #fff; font-weight: 600; cursor: pointer; transition: all 0.3s;
         }
+        .btn-secondary:hover { transform: translateY(-2px); }
+
+        .btn-action {
+            padding: 0.8rem 2rem; border: none; border-radius: 0.8rem;
+            color: #fff; font-weight: 700; cursor: pointer; transition: all 0.3s;
+        }
+
+        /* Typography */
+        .gradient-text {
+            background: linear-gradient(135deg,#ff6b6b,#feca57,#ff9ff3,#54a0ff);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .section-title { text-align: center; font-size: 1.8rem; margin-bottom: 1.5rem; }
+
+        /* Music Player */
+        #music-player {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: rgba(15,12,41,0.95); backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding: 0.8rem 1rem; z-index: 200;
+        }
+        .music-inner { max-width: 900px; margin: 0 auto; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+        .music-info { display: flex; align-items: center; gap: 0.8rem; flex: 1; min-width: 200px; }
+        .music-cover {
+            width: 45px; height: 45px; border-radius: 0.8rem;
+            background: linear-gradient(135deg,#ff6b6b,#e84393);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem; animation: spin 8s linear infinite;
+        }
+        .music-cover.paused { animation-play-state: paused; }
+        .play-btn {
+            width: 45px; height: 45px; border: none; border-radius: 50%;
+            background: linear-gradient(135deg,#ff6b6b,#e84393);
+            color: #fff; cursor: pointer; font-size: 1.2rem;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 20px rgba(232,67,147,0.4);
+        }
+        .ctrl-btn { background: none; border: none; color: rgba(255,255,255,0.6); cursor: pointer; font-size: 1.2rem; padding: 0.3rem; transition: all 0.3s; }
+        .ctrl-btn:hover { color: #fff; }
+
+        /* Utility */
+        .flex-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+        .flex-1 { flex: 1; min-width: 140px; }
+        .text-center { text-align: center; }
+        .mt-1 { margin-top: 1rem; }
+        .mt-2 { margin-top: 2rem; }
+        .mb-1 { margin-bottom: 1rem; }
+        .hidden { display: none !important; }
+
+        /* Quiz */
+        .quiz-btn {
+            padding: 0.8rem; border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 0.8rem; background: rgba(255,255,255,0.05);
+            color: #fff; cursor: pointer; text-align: left;
+            transition: all 0.3s; width: 100%; margin-bottom: 0.5rem;
+        }
+        .quiz-btn:hover { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.3); }
+
+        /* Exercise item */
+        .exercise-item {
+            display: flex; align-items: center; gap: 1rem;
+            padding: 0.8rem; background: rgba(255,255,255,0.03);
+            border-radius: 0.8rem;
+        }
+
+        /* Health tip */
+        .tip-card {
+            padding: 1rem; border-radius: 0 0.8rem 0.8rem 0;
+            margin-bottom: 0.8rem;
+        }
+
+        /* Timer */
+        .timer-display { font-size: 3.5rem; font-weight: 800; font-family: monospace; color: #feca57; }
+
+        /* Responsive */
         @media (max-width: 480px) {
-            .card { padding: 2rem 1.5rem; }
-            h1 { font-size: 1.5rem; }
-            .circle-container { width: 160px; height: 160px; }
-            .percentage-text .num { font-size: 2.5rem; }
+            .glass-card { padding: 2rem 1.5rem; }
+            .timer-display { font-size: 2.5rem; }
+            .nav-brand { font-size: 1.1rem; }
         }
     </style>
 </head>
 <body>
 
-    <div class="hearts-container" id="heartsContainer"></div>
+<!-- Background Particles -->
+<div id="bg-particles"></div>
 
-    <div class="card">
-        <div class="top-bar"></div>
-        
-        <div class="title-icon">💕</div>
-        <h1>Love Calculator</h1>
-        <p class="subtitle">नाम हाल्नुहोस् र तपाईंको सम्बन्ध जान्नुहोस्</p>
-
-        <div id="inputSection">
-            <div class="input-row">
-                <div class="input-group">
-                    <label>👦 केटाको नाम</label>
-                    <input type="text" id="name1" placeholder="Ram">
-                </div>
-                <div class="heart-divider">❤️</div>
-                <div class="input-group">
-                    <label>👧 केटीको नाम</label>
-                    <input type="text" id="name2" placeholder="Sita">
-                </div>
-            </div>
-            <button class="btn-calculate" onclick="calculateLove()">🔮 Calculate Love %</button>
+<!-- Navigation -->
+<nav>
+    <div class="nav-inner">
+        <div class="nav-brand">💖 Love & Life</div>
+        <div style="display:flex;gap:0.3rem;flex-wrap:wrap;">
+            <button class="nav-btn active" data-tab="love" onclick="switchTab('love')">💕 Love</button>
+            <button class="nav-btn" data-tab="brain" onclick="switchTab('brain')">🧠 Brain</button>
+            <button class="nav-btn" data-tab="fitness" onclick="switchTab('fitness')">💪 Fitness</button>
+            <button class="nav-btn" data-tab="health" onclick="switchTab('health')">❤️ Health</button>
         </div>
+    </div>
+</nav>
 
-        <div class="result-section" id="resultSection">
-            <div class="circle-container">
-                <svg viewBox="0 0 200 200" style="width:100%;height:100%;transform:rotate(-90deg);">
-                    <circle cx="100" cy="100" r="85" fill="none" stroke="#ffe0e0" stroke-width="12"/>
-                    <circle id="progressCircle" cx="100" cy="100" r="85" fill="none" stroke="url(#grad)" stroke-width="12" stroke-linecap="round" stroke-dasharray="534" stroke-dashoffset="534" style="transition:stroke-dashoffset 2.5s cubic-bezier(0.4,0,0.2,1);"/>
-                    <defs>
-                        <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="0%">
-                            <stop offset="0%" style="stop-color:#ff6b6b"/>
-                            <stop offset="100%" style="stop-color:#e84393"/>
-                        </linearGradient>
-                    </defs>
-                </svg>
-                <div class="percentage-text">
-                    <div class="num" id="percentageNum">0%</div>
-                    <div class="label">Match</div>
+<!-- Main Content -->
+<div class="main-container">
+
+    <!-- LOVE TAB -->
+    <div id="tab-love" class="tab-content active">
+        <div class="glass-card">
+            <div style="position:relative;z-index:2;">
+                <div style="font-size:3rem;margin-bottom:0.5rem;animation:float 3s ease-in-out infinite;">💖</div>
+                <h1 class="gradient-text" style="font-size:2rem;margin-bottom:0.5rem;">Love Calculator</h1>
+                <p style="color:rgba(255,255,255,0.6);margin-bottom:2rem;">Discover your cosmic connection</p>
+                
+                <div id="love-input">
+                    <div class="flex-row" style="justify-content:center;margin-bottom:1.5rem;">
+                        <div class="flex-1" style="text-align:left;">
+                            <label style="display:block;color:#ff9ff3;font-size:0.8rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.3rem;font-weight:600;">Your Name</label>
+                            <input type="text" id="l-name1" placeholder="Enter name..." autocomplete="off">
+                        </div>
+                        <div style="font-size:1.8rem;color:#ff6b6b;animation:heartbeat 1.5s infinite;display:flex;align-items:flex-end;padding-bottom:0.5rem;">❤️</div>
+                        <div class="flex-1" style="text-align:left;">
+                            <label style="display:block;color:#ff9ff3;font-size:0.8rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.3rem;font-weight:600;">Partner's Name</label>
+                            <input type="text" id="l-name2" placeholder="Enter name..." autocomplete="off">
+                        </div>
+                    </div>
+                    <button class="btn-primary" onclick="calcLove()">✨ Calculate Love %</button>
+                </div>
+                
+                <div id="love-result" class="hidden" style="margin-top:1.5rem;">
+                    <div style="position:relative;width:180px;height:180px;margin:0 auto 1.5rem;">
+                        <svg viewBox="0 0 180 180" style="width:100%;height:100%;transform:rotate(-90deg);">
+                            <defs><linearGradient id="lg" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#ff6b6b"/><stop offset="100%" style="stop-color:#e84393"/></linearGradient></defs>
+                            <circle cx="90" cy="90" r="78" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="12"/>
+                            <circle id="love-circle" cx="90" cy="90" r="78" fill="none" stroke="url(#lg)" stroke-width="12" stroke-linecap="round" stroke-dasharray="490" stroke-dashoffset="490" style="transition:stroke-dashoffset 2.5s cubic-bezier(0.4,0,0.2,1);"/>
+                        </svg>
+                        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;">
+                            <div id="love-pct" style="font-size:2.8rem;font-weight:800;color:#fff;text-shadow:0 0 20px rgba(232,67,147,0.8);">0%</div>
+                            <div style="font-size:0.75rem;color:rgba(255,255,255,0.5);">MATCH</div>
+                        </div>
+                    </div>
+                    <div id="love-names" style="font-size:1.1rem;color:rgba(255,255,255,0.8);margin-bottom:0.8rem;font-weight:600;"></div>
+                    <div id="love-badge" style="display:inline-block;padding:0.5rem 1.5rem;border-radius:2rem;font-weight:700;margin-bottom:0.8rem;background:linear-gradient(135deg,rgba(255,107,107,0.2),rgba(232,67,147,0.2));color:#ff9ff3;border:1px solid rgba(255,107,107,0.3);"></div>
+                    <p id="love-msg" style="color:rgba(255,255,255,0.6);font-size:0.95rem;line-height:1.6;margin-bottom:1rem;"></p>
+                    <button class="btn-secondary" onclick="resetLove()">🔄 Try Again</button>
                 </div>
             </div>
-
-            <div class="names-display" id="namesDisplay"></div>
-            <div class="status-badge" id="statusBadge"></div>
-            <p class="message" id="message"></p>
-
-            <button class="btn-reset" onclick="resetCalc()">🔄 फेरि हेर्नुहोस्</button>
         </div>
     </div>
 
-    <p class="footer-note">💝 Just for fun! Entertainment purpose only.</p>
+    <!-- BRAIN TAB -->
+    <div id="tab-brain" class="tab-content">
+        <h2 class="section-title gradient-text" style="background:linear-gradient(135deg,#54a0ff,#5f27cd);-webkit-background-clip:text;">🧠 Brain Training</h2>
+        
+        <!-- Memory Game -->
+        <div class="section-card">
+            <h3 style="color:#54a0ff;margin-bottom:1rem;">🎯 Memory Challenge</h3>
+            <p style="color:rgba(255,255,255,0.6);font-size:0.9rem;margin-bottom:1rem;">Numbers will flash for 3 seconds. Remember them!</p>
+            <div class="text-center">
+                <div id="mem-display" style="font-size:2.5rem;font-weight:800;color:#feca57;min-height:60px;margin-bottom:1rem;letter-spacing:0.5rem;">Press Start</div>
+                <input type="text" id="mem-input" class="hidden" placeholder="Type numbers here..." style="max-width:300px;text-align:center;font-size:1.2rem;margin-bottom:1rem;">
+                <button id="mem-btn" class="btn-action" style="background:linear-gradient(135deg,#54a0ff,#5f27cd);" onclick="startMemory()">▶️ Start Game</button>
+                <div id="mem-score" class="mt-1" style="color:#feca57;font-weight:700;"></div>
+            </div>
+        </div>
 
-    <script>
-        // Floating hearts background
-        const heartsContainer = document.getElementById('heartsContainer');
-        const heartEmojis = ['💕','💖','💗','💓','💝','❤️','💘'];
-        for(let i = 0; i < 15; i++) {
-            const heart = document.createElement('div');
-            heart.className = 'heart-particle';
-            heart.textContent = heartEmojis[Math.floor(Math.random() * heartEmojis.length)];
-            heart.style.left = Math.random() * 100 + '%';
-            heart.style.fontSize = (Math.random() * 20 + 15) + 'px';
-            heart.style.animationDuration = (Math.random() * 6 + 4) + 's';
-            heart.style.animationDelay = Math.random() * 5 + 's';
-            heartsContainer.appendChild(heart);
+        <!-- Reaction Test -->
+        <div class="section-card">
+            <h3 style="color:#1dd1a1;margin-bottom:1rem;">⚡ Reaction Speed Test</h3>
+            <p style="color:rgba(255,255,255,0.6);font-size:0.9rem;margin-bottom:1rem;">Click as fast as you can when the box turns GREEN!</p>
+            <div id="reaction-box" onclick="handleReaction()" style="width:100%;height:150px;background:#2d3436;border-radius:1rem;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.1s;font-size:1.2rem;font-weight:700;color:rgba(255,255,255,0.5);margin-bottom:1rem;user-select:none;">Click to Start</div>
+            <div id="reaction-result" class="text-center" style="color:#1dd1a1;font-weight:700;font-size:1.1rem;"></div>
+        </div>
+
+        <!-- Quiz -->
+        <div class="section-card">
+            <h3 style="color:#ff9ff3;margin-bottom:1rem;">🧩 Quick IQ Riddle</h3>
+            <p id="quiz-question" style="color:#fff;font-size:1.1rem;margin-bottom:1rem;font-weight:600;">What has keys but no locks?</p>
+            <button class="quiz-btn" onclick="checkAnswer(0)">A) A treasure chest</button>
+            <button class="quiz-btn" onclick="checkAnswer(1)">B) A piano</button>
+            <button class="quiz-btn" onclick="checkAnswer(2)">C) A map</button>
+            <div id="quiz-feedback" class="mt-1" style="font-weight:700;"></div>
+        </div>
+    </div>
+
+    <!-- FITNESS TAB -->
+    <div id="tab-fitness" class="tab-content">
+        <h2 class="section-title gradient-text" style="background:linear-gradient(135deg,#1dd1a1,#00d2d3);-webkit-background-clip:text;">💪 Fitness Hub</h2>
+        
+        <!-- BMI -->
+        <div class="section-card">
+            <h3 style="color:#1dd1a1;margin-bottom:1rem;">📊 BMI Calculator</h3>
+            <div class="flex-row" style="margin-bottom:1rem;">
+                <div class="flex-1" style="min-width:120px;">
+                    <label style="display:block;color:rgba(255,255,255,0.6);font-size:0.8rem;margin-bottom:0.3rem;">Height (cm)</label>
+                    <input type="number" id="bmi-height" placeholder="170">
+                </div>
+                <div class="flex-1" style="min-width:120px;">
+                    <label style="display:block;color:rgba(255,255,255,0.6);font-size:0.8rem;margin-bottom:0.3rem;">Weight (kg)</label>
+                    <input type="number" id="bmi-weight" placeholder="65">
+                </div>
+            </div>
+            <button class="btn-action" style="background:linear-gradient(135deg,#1dd1a1,#00d2d3);" onclick="calcBMI()">Calculate BMI</button>
+            <div id="bmi-result" class="hidden mt-1" style="padding:1rem;border-radius:0.8rem;background:rgba(255,255,255,0.05);">
+                <div id="bmi-value" style="font-size:2rem;font-weight:800;color:#1dd1a1;"></div>
+                <div id="bmi-status" style="color:rgba(255,255,255,0.8);margin-top:0.3rem;"></div>
+            </div>
+        </div>
+
+        <!-- Timer -->
+        <div class="section-card">
+            <h3 style="color:#feca57;margin-bottom:1rem;">⏱️ Workout Timer</h3>
+            <div class="text-center mb-1">
+                <div id="timer-display" class="timer-display">00:00</div>
+                <div id="timer-label" style="color:rgba(255,255,255,0.5);font-size:0.9rem;margin-top:0.3rem;">Ready to start</div>
+            </div>
+            <div class="flex-row" style="justify-content:center;">
+                <button class="btn-action" style="background:rgba(255,255,255,0.1);" onclick="startTimer(30)">30s</button>
+                <button class="btn-action" style="background:rgba(255,255,255,0.1);" onclick="startTimer(60)">1 min</button>
+                <button class="btn-action" style="background:rgba(255,255,255,0.1);" onclick="startTimer(300)">5 min</button>
+                <button class="btn-action" style="background:rgba(255,107,107,0.3);color:#ff6b6b;" onclick="stopTimer()">⏹ Stop</button>
+            </div>
+        </div>
+
+        <!-- Exercises -->
+        <div class="section-card">
+            <h3 style="color:#ff6b6b;margin-bottom:1rem;">🔥 Daily Exercise Plan</h3>
+            <div style="display:flex;flex-direction:column;gap:0.6rem;">
+                <div class="exercise-item"><span style="font-size:1.5rem;">🏃</span><div style="flex:1;"><div style="font-weight:600;">Morning Jog</div><div style="font-size:0.85rem;color:rgba(255,255,255,0.5);">20 minutes • Cardio</div></div><input type="checkbox" style="width:20px;height:20px;accent-color:#1dd1a1;cursor:pointer;"></div>
+                <div class="exercise-item"><span style="font-size:1.5rem;">🧘</span><div style="flex:1;"><div style="font-weight:600;">Yoga Stretching</div><div style="font-size:0.85rem;color:rgba(255,255,255,0.5);">15 minutes • Flexibility</div></div><input type="checkbox" style="width:20px;height:20px;accent-color:#1dd1a1;cursor:pointer;"></div>
+                <div class="exercise-item"><span style="font-size:1.5rem;">💪</span><div style="flex:1;"><div style="font-weight:600;">Push-ups</div><div style="font-size:0.85rem;color:rgba(255,255,255,0.5);">3 sets x 15 reps • Strength</div></div><input type="checkbox" style="width:20px;height:20px;accent-color:#1dd1a1;cursor:pointer;"></div>
+                <div class="exercise-item"><span style="font-size:1.5rem;">🚰</span><div style="flex:1;"><div style="font-weight:600;">Drink Water</div><div style="font-size:0.85rem;color:rgba(255,255,255,0.5);">8 glasses • Hydration</div></div><input type="checkbox" style="width:20px;height:20px;accent-color:#1dd1a1;cursor:pointer;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- HEALTH TAB -->
+    <div id="tab-health" class="tab-content">
+        <h2 class="section-title gradient-text" style="background:linear-gradient(135deg,#ff6b6b,#ff9ff3);-webkit-background-clip:text;">❤️ Health Center</h2>
+        
+        <!-- Sleep -->
+        <div class="section-card">
+            <h3 style="color:#5f27cd;margin-bottom:1rem;">😴 Sleep Calculator</h3>
+            <p style="color:rgba(255,255,255,0.6);font-size:0.9rem;margin-bottom:1rem;">Enter when you want to wake up, we'll tell you when to sleep!</p>
+            <div class="flex-row" style="align-items:center;margin-bottom:1rem;">
+                <input type="time" id="wake-time" value="06:00" style="width:auto;">
+                <button class="btn-action" style="background:linear-gradient(135deg,#5f27cd,#54a0ff);" onclick="calcSleep()">Calculate</button>
+            </div>
+            <div id="sleep-result" class="hidden">
+                <div style="background:rgba(255,255,255,0.03);border-radius:0.8rem;padding:1rem;margin-bottom:0.5rem;">
+                    <div style="color:#5f27cd;font-weight:700;">🌙 Sleep at: <span id="sleep-time" style="color:#fff;font-size:1.2rem;"></span></div>
+                    <div style="color:rgba(255,255,255,0.6);font-size:0.85rem;margin-top:0.3rem;">For 5 complete sleep cycles (7.5 hours)</div>
+                </div>
+                <div style="background:rgba(255,255,255,0.03);border-radius:0.8rem;padding:1rem;">
+                    <div style="color:#54a0ff;font-weight:700;">⭐ Alternative: <span id="sleep-time-alt" style="color:#fff;font-size:1.2rem;"></span></div>
+                    <div style="color:rgba(255,255,255,0.6);font-size:0.85rem;margin-top:0.3rem;">For 6 complete sleep cycles (9 hours)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Calories -->
+        <div class="section-card">
+            <h3 style="color:#feca57;margin-bottom:1rem;">🍎 Daily Calorie Needs</h3>
+            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:0.8rem;margin-bottom:1rem;">
+                <div><label style="display:block;color:rgba(255,255,255,0.6);font-size:0.8rem;margin-bottom:0.3rem;">Weight (kg)</label><input type="number" id="cal-weight" placeholder="65"></div>
+                <div><label style="display:block;color:rgba(255,255,255,0.6);font-size:0.8rem;margin-bottom:0.3rem;">Height (cm)</label><input type="number" id="cal-height" placeholder="170"></div>
+                <div><label style="display:block;color:rgba(255,255,255,0.6);font-size:0.8rem;margin-bottom:0.3rem;">Age</label><input type="number" id="cal-age" placeholder="25"></div>
+                <div><label style="display:block;color:rgba(255,255,255,0.6);font-size:0.8rem;margin-bottom:0.3rem;">Gender</label><select id="cal-gender"><option value="male">Male</option><option value="female">Female</option></select></div>
+            </div>
+            <button class="btn-action" style="width:100%;background:linear-gradient(135deg,#feca57,#ff9ff3);color:#000;" onclick="calcCalories()">Calculate Calories</button>
+            <div id="cal-result" class="hidden mt-1 text-center">
+                <div id="cal-value" style="font-size:2rem;font-weight:800;color:#feca57;"></div>
+                <div style="color:rgba(255,255,255,0.6);font-size:0.9rem;">calories/day to maintain weight</div>
+            </div>
+        </div>
+
+        <!-- Tips -->
+        <div class="section-card">
+            <h3 style="color:#1dd1a1;margin-bottom:1rem;">💡 Daily Health Tips</h3>
+            <div class="tip-card" style="background:rgba(29,209,161,0.1);border-left:3px solid #1dd1a1;">
+                <div style="font-weight:600;color:#1dd1a1;">💧 Stay Hydrated</div>
+                <div style="color:rgba(255,255,255,0.7);font-size:0.9rem;margin-top:0.3rem;">Drink at least 8 glasses of water daily for optimal body function.</div>
+            </div>
+            <div class="tip-card" style="background:rgba(84,160,255,0.1);border-left:3px solid #54a0ff;">
+                <div style="font-weight:600;color:#54a0ff;">😴 Quality Sleep</div>
+                <div style="color:rgba(255,255,255,0.7);font-size:0.9rem;margin-top:0.3rem;">Aim for 7-9 hours of sleep. Your brain cleans itself during deep sleep!</div>
+            </div>
+            <div class="tip-card" style="background:rgba(254,202,87,0.1);border-left:3px solid #feca57;">
+                <div style="font-weight:600;color:#feca57;">🥗 Eat Colors</div>
+                <div style="color:rgba(255,255,255,0.7);font-size:0.9rem;margin-top:0.3rem;">Include colorful fruits and vegetables. Different colors = different nutrients!</div>
+            </div>
+            <div class="tip-card" style="background:rgba(255,107,107,0.1);border-left:3px solid #ff6b6b;">
+                <div style="font-weight:600;color:#ff6b6b;">🏃 Move Daily</div>
+                <div style="color:rgba(255,255,255,0.7);font-size:0.9rem;margin-top:0.3rem;">Just 30 minutes of walking can boost mood and heart health significantly.</div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Music Player -->
+<div id="music-player">
+    <div class="music-inner">
+        <div class="music-info">
+            <div id="music-icon" class="music-cover paused">🎵</div>
+            <div>
+                <div id="song-title" style="font-weight:700;color:#fff;font-size:0.95rem;">Chill Vibes</div>
+                <div id="song-artist" style="color:rgba(255,255,255,0.5);font-size:0.8rem;">Auto-Generated</div>
+            </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:0.5rem;">
+            <button class="ctrl-btn" onclick="prevSong()">⏮️</button>
+            <button class="play-btn" id="play-btn" onclick="toggleMusic()">▶️</button>
+            <button class="ctrl-btn" onclick="nextSong()">⏭️</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:0.5rem;flex:1;min-width:150px;">
+            <span style="color:rgba(255,255,255,0.5);font-size:0.8rem;">🔊</span>
+            <input type="range" min="0" max="100" value="30" oninput="setVolume(this.value)" style="flex:1;accent-color:#e84393;cursor:pointer;">
+        </div>
+        <select id="music-category" onchange="changeCategory(this.value)" style="padding:0.4rem 0.8rem;border:1px solid rgba(255,255,255,0.1);border-radius:0.5rem;background:rgba(255,255,255,0.05);color:#fff;font-size:0.85rem;outline:none;cursor:pointer;">
+            <option value="chill">🎧 Chill</option>
+            <option value="romantic">💕 Romantic</option>
+            <option value="upbeat">⚡ Upbeat</option>
+            <option value="focus">🧠 Focus</option>
+        </select>
+    </div>
+</div>
+
+<script>
+// ========== BACKGROUND PARTICLES ==========
+const bgContainer = document.getElementById('bg-particles');
+const particles = ['💕','💖','💗','✨','🌟','💫','🎵','🎶'];
+for(let i=0;i<15;i++){
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.textContent = particles[Math.floor(Math.random()*particles.length)];
+    p.style.left = Math.random()*100+'%';
+    p.style.fontSize = (Math.random()*15+10)+'px';
+    p.style.animationDuration = (Math.random()*10+8)+'s';
+    p.style.animationDelay = Math.random()*5+'s';
+    bgContainer.appendChild(p);
+}
+
+// ========== TAB SWITCHING ==========
+function switchTab(tab){
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.getElementById('tab-'+tab).classList.add('active');
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('active');
+        btn.style.background = 'rgba(255,255,255,0.05)';
+        btn.style.color = 'rgba(255,255,255,0.6)';
+    });
+    const activeBtn = document.querySelector('[data-tab="'+tab+'"]');
+    activeBtn.classList.add('active');
+    activeBtn.style.background = 'rgba(255,255,255,0.2)';
+    activeBtn.style.color = '#fff';
+}
+
+// ========== LOVE CALCULATOR ==========
+function calcLove(){
+    const n1 = document.getElementById('l-name1').value.trim();
+    const n2 = document.getElementById('l-name2').value.trim();
+    if(!n1||!n2){ alert('Please enter both names!'); return; }
+    let combined = (n1.toLowerCase()+n2.toLowerCase()).replace(/\s/g,'');
+    let hash = 0;
+    for(let i=0;i<combined.length;i++){ hash = ((hash<<5)-hash)+combined.charCodeAt(i); hash = hash & hash; }
+    let pct = Math.abs(hash % 101);
+    const pair = n1.toLowerCase()+'+'+n2.toLowerCase();
+    const rev = n2.toLowerCase()+'+'+n1.toLowerCase();
+    const legend = ['ram+sita','sita+ram','shiva+parvati','parvati+shiva','krishna+radha','radha+krishna'];
+    if(legend.includes(pair)||legend.includes(rev)) pct = 100;
+    
+    document.getElementById('love-input').classList.add('hidden');
+    document.getElementById('love-result').classList.remove('hidden');
+    document.getElementById('love-names').textContent = n1+' ❤️ '+n2;
+    
+    const circle = document.getElementById('love-circle');
+    const offset = 490 - (pct/100)*490;
+    setTimeout(()=>circle.style.strokeDashoffset = offset, 200);
+    
+    let cur = 0;
+    const step = Math.max(1, Math.floor(pct/50));
+    const timer = setInterval(()=>{
+        cur += step;
+        if(cur >= pct){ clearInterval(timer); document.getElementById('love-pct').textContent = pct+'%'; }
+        else document.getElementById('love-pct').textContent = cur+'%';
+    }, 30);
+    
+    const badge = document.getElementById('love-badge');
+    const msg = document.getElementById('love-msg');
+    if(pct>=90){ badge.textContent='🔥 Soulmates!'; msg.textContent='The stars have aligned! Your connection is written in the cosmos. 💍✨'; }
+    else if(pct>=70){ badge.textContent='💘 Perfect Match!'; msg.textContent='Deep understanding and genuine respect flow between you two. 🌹'; }
+    else if(pct>=50){ badge.textContent='💕 Good Chemistry'; msg.textContent='A promising start! Give time to understand each other. ☕'; }
+    else if(pct>=30){ badge.textContent='🌱 Growing Bond'; msg.textContent='Every great relationship needs effort. Take time to discover each other. 🤝'; }
+    else{ badge.textContent='💫 Unique Connection'; msg.textContent='Sometimes the best relationships start as friendship. 😊'; }
+}
+function resetLove(){
+    document.getElementById('love-input').classList.remove('hidden');
+    document.getElementById('love-result').classList.add('hidden');
+    document.getElementById('love-circle').style.strokeDashoffset = 490;
+    document.getElementById('l-name1').value = '';
+    document.getElementById('l-name2').value = '';
+}
+
+// ========== BRAIN GAMES ==========
+let memSequence = '';
+function startMemory(){
+    memSequence = '';
+    for(let i=0;i<5;i++) memSequence += Math.floor(Math.random()*10);
+    document.getElementById('mem-display').textContent = memSequence;
+    document.getElementById('mem-input').classList.add('hidden');
+    document.getElementById('mem-btn').classList.add('hidden');
+    document.getElementById('mem-score').textContent = 'Remember these numbers...';
+    
+    setTimeout(()=>{
+        document.getElementById('mem-display').textContent = '???';
+        document.getElementById('mem-input').classList.remove('hidden');
+        document.getElementById('mem-input').value = '';
+        document.getElementById('mem-input').focus();
+        document.getElementById('mem-score').textContent = 'Type the numbers!';
+    }, 3000);
+}
+document.getElementById('mem-input').addEventListener('keypress', function(e){
+    if(e.key==='Enter'){
+        if(this.value === memSequence){
+            document.getElementById('mem-score').textContent = '✅ Perfect Memory! Amazing!';
+            document.getElementById('mem-score').style.color = '#1dd1a1';
+        } else {
+            document.getElementById('mem-score').textContent = '❌ Wrong! It was: '+memSequence;
+            document.getElementById('mem-score').style.color = '#ff6b6b';
         }
+        document.getElementById('mem-input').classList.add('hidden');
+        document.getElementById('mem-btn').classList.remove('hidden');
+        document.getElementById('mem-btn').textContent = '🔄 Play Again';
+    }
+});
 
-        function calculateLove() {
-            const name1 = document.getElementById('name1').value.trim();
-            const name2 = document.getElementById('name2').value.trim();
+let reactStart = 0, reactState = 'ready', reactTimeout;
+function handleReaction(){
+    const box = document.getElementById('reaction-box');
+    const result = document.getElementById('reaction-result');
+    if(reactState === 'ready'){
+        box.style.background = '#e74c3c';
+        box.textContent = 'Wait for GREEN...';
+        box.style.color = '#fff';
+        reactState = 'waiting';
+        const delay = Math.random()*3000 + 2000;
+        reactTimeout = setTimeout(()=>{
+            box.style.background = '#1dd1a1';
+            box.textContent = 'CLICK NOW!';
+            reactStart = Date.now();
+            reactState = 'go';
+        }, delay);
+    } else if(reactState === 'waiting'){
+        clearTimeout(reactTimeout);
+        box.style.background = '#2d3436';
+        box.textContent = 'Too early! Click to retry';
+        box.style.color = 'rgba(255,255,255,0.5)';
+        reactState = 'ready';
+    } else if(reactState === 'go'){
+        const time = Date.now() - reactStart;
+        box.style.background = '#2d3436';
+        box.textContent = 'Click to try again';
+        box.style.color = 'rgba(255,255,255,0.5)';
+        let rating = '';
+        if(time < 200) rating = '🏆 INSANE!';
+        else if(time < 300) rating = '⚡ Lightning Fast!';
+        else if(time < 400) rating = '👍 Great!';
+        else if(time < 500) rating = '👌 Good';
+        else rating = '🐢 Keep practicing!';
+        result.textContent = time + 'ms ' + rating;
+        reactState = 'ready';
+    }
+}
 
-            if(!name1 || !name2) {
-                alert('कृपया दुवै नाम हाल्नुहोस्!');
-                return;
-            }
+const quizData = [
+    {q:'What has keys but no locks?',a:1,options:['A treasure chest','A piano','A map']},
+    {q:'What gets wet while drying?',a:2,options:['A river','A sponge','A towel']},
+    {q:'I have branches but no fruit. What am I?',a:0,options:['A bank','A tree','A river']}
+];
+let quizIdx = 0;
+function checkAnswer(idx){
+    const feedback = document.getElementById('quiz-feedback');
+    if(idx === quizData[quizIdx].a){
+        feedback.textContent = '✅ Correct! Well done!';
+        feedback.style.color = '#1dd1a1';
+    } else {
+        feedback.textContent = '❌ Wrong! The answer was: ' + quizData[quizIdx].options[quizData[quizIdx].a];
+        feedback.style.color = '#ff6b6b';
+    }
+    setTimeout(()=>{
+        quizIdx = (quizIdx+1) % quizData.length;
+        document.getElementById('quiz-question').textContent = quizData[quizIdx].q;
+        const btns = document.querySelectorAll('.quiz-btn');
+        btns.forEach((btn,i)=>{ btn.textContent = ['A','B','C'][i] + ') ' + quizData[quizIdx].options[i]; });
+        feedback.textContent = '';
+    }, 2000);
+}
 
-            // Calculate percentage (deterministic for same names)
-            let combined = (name1.toLowerCase() + name2.toLowerCase()).replace(/\s/g, '');
-            let hash = 0;
-            for(let i = 0; i < combined.length; i++) {
-                hash = ((hash << 5) - hash) + combined.charCodeAt(i);
-                hash = hash & hash;
-            }
-            let percentage = Math.abs(hash % 101);
+// ========== FITNESS ==========
+function calcBMI(){
+    const h = parseFloat(document.getElementById('bmi-height').value);
+    const w = parseFloat(document.getElementById('bmi-weight').value);
+    if(!h||!w){ alert('Enter both height and weight!'); return; }
+    const bmi = (w / ((h/100)**2)).toFixed(1);
+    document.getElementById('bmi-result').classList.remove('hidden');
+    document.getElementById('bmi-value').textContent = bmi;
+    let status = '';
+    if(bmi<18.5) status = 'Underweight • Eat more nutritious food! 🍎';
+    else if(bmi<25) status = 'Normal Weight • Great job! Keep it up! 💪';
+    else if(bmi<30) status = 'Overweight • Try daily exercise! 🏃';
+    else status = 'Obese • Consult a doctor and start exercising! ❤️';
+    document.getElementById('bmi-status').textContent = status;
+}
 
-            // Easter eggs: legendary Nepali pairs always get 100%
-            const pair = name1.toLowerCase() + '+' + name2.toLowerCase();
-            const reversePair = name2.toLowerCase() + '+' + name1.toLowerCase();
-            const legendaryPairs = ['ram+sita','sita+ram','shiva+parvati','parvati+shiva','krishna+radha','radha+krishna'];
-            if(legendaryPairs.includes(pair) || legendaryPairs.includes(reversePair)) {
-                percentage = 100;
-            }
-
-            // Show result
-            document.getElementById('inputSection').style.display = 'none';
-            document.getElementById('resultSection').style.display = 'block';
-            document.getElementById('namesDisplay').textContent = '👦 ' + name1 + '  ❤️  👧 ' + name2;
-
-            // Animate circle
-            const circle = document.getElementById('progressCircle');
-            const circumference = 534;
-            const offset = circumference - (percentage / 100) * circumference;
-            setTimeout(() => { circle.style.strokeDashoffset = offset; }, 100);
-
-            // Count up animation
-            let current = 0;
-            const step = Math.max(1, Math.floor(percentage / 50));
-            const counter = setInterval(() => {
-                current += step;
-                if(current >= percentage) {
-                    clearInterval(counter);
-                    document.getElementById('percentageNum').textContent = percentage + '%';
-                } else {
-                    document.getElementById('percentageNum').textContent = current + '%';
-                }
-            }, 30);
-
-            // Status & message
-            const badge = document.getElementById('statusBadge');
-            const msg = document.getElementById('message');
-
-            if(percentage >= 90) {
-                badge.textContent = '🔥 Soulmates!';
-                badge.style.background = '#ffe0e0';
-                badge.style.color = '#e84393';
-                msg.textContent = 'तपाईंहरूको जोडी जस्तो संसारमा अरु कोही छैन! यो प्रेम सदाबहार छ। 💍✨';
-            } else if(percentage >= 70) {
-                badge.textContent = '💘 Perfect Match!';
-                badge.style.background = '#fff3e0';
-                badge.style.color = '#f39c12';
-                msg.textContent = 'तपाईंहरूको बीचमा गहिरो बुझाइ र सम्मान छ। यो सम्बन्ध अझै बलियो बनाउनुहोस्! 🌹';
-            } else if(percentage >= 50) {
-                badge.textContent = '💕 Good Chemistry';
-                badge.style.background = '#e3f2fd';
-                badge.style.color = '#2196f3';
-                msg.textContent = 'राम्रो सुरुवात! एकअर्कालाई बुझ्न समय दिनुहोस्, सम्बन्ध अझै राम्रो हुनेछ। ☕';
-            } else if(percentage >= 30) {
-                badge.textContent = '🌱 Growing Bond';
-                badge.style.background = '#e8f5e9';
-                badge.style.color = '#4caf50';
-                msg.textContent = 'सम्बन्ध बनाउन मेहनत चाहिन्छ। एकअर्काको रुचि र विचार बुझ्न प्रयास गर्नुहोस्। 🤝';
-            } else {
-                badge.textContent = '💫 Just Friends?';
-                badge.style.background = '#f3e5f5';
-                badge.style.color = '#9c27b0';
-                msg.textContent = 'प्रेम भन्दा पनि राम्रो मित्रता हुन सक्छ! सबै सम्बन्ध राम्रो हुन्छ। 😊';
-            }
+let timerInterval;
+function startTimer(seconds){
+    stopTimer();
+    let remaining = seconds;
+    const display = document.getElementById('timer-display');
+    const label = document.getElementById('timer-label');
+    label.textContent = 'Workout in progress...';
+    display.style.color = '#feca57';
+    
+    timerInterval = setInterval(()=>{
+        const m = Math.floor(remaining/60).toString().padStart(2,'0');
+        const s = (remaining%60).toString().padStart(2,'0');
+        display.textContent = m+':'+s;
+        remaining--;
+        if(remaining < 0){
+            clearInterval(timerInterval);
+            display.textContent = '00:00';
+            label.textContent = 'Workout Complete! 🔥';
+            display.style.color = '#1dd1a1';
         }
+    }, 1000);
+}
+function stopTimer(){
+    clearInterval(timerInterval);
+    document.getElementById('timer-display').textContent = '00:00';
+    document.getElementById('timer-label').textContent = 'Ready to start';
+    document.getElementById('timer-display').style.color = '#feca57';
+}
 
-        function resetCalc() {
-            document.getElementById('inputSection').style.display = 'block';
-            document.getElementById('resultSection').style.display = 'none';
-            document.getElementById('progressCircle').style.strokeDashoffset = 534;
-            document.getElementById('name1').value = '';
-            document.getElementById('name2').value = '';
-        }
-    </script>
+// ========== HEALTH ==========
+function calcSleep(){
+    const wakeTime = document.getElementById('wake-time').value;
+    if(!wakeTime){ alert('Select wake up time!'); return; }
+    const [hours, mins] = wakeTime.split(':').map(Number);
+    
+    function subtractCycles(h, m, cycles){
+        let totalMins = h*60 + m - (cycles * 90);
+        if(totalMins < 0) totalMins += 24*60;
+        const nh = Math.floor(totalMins/60) % 24;
+        const nm = totalMins % 60;
+        return nh.toString().padStart(2,'0')+':'+nm.toString().padStart(2,'0');
+    }
+    
+    document.getElementById('sleep-result').classList.remove('hidden');
+    document.getElementById('sleep-time').textContent = subtractCycles(hours, mins, 5);
+    document.getElementById('sleep-time-alt').textContent = subtractCycles(hours, mins, 6);
+}
+
+function calcCalories(){
+    const w = parseFloat(document.getElementById('cal-weight').value);
+    const h = parseFloat(document.getElementById('cal-height').value);
+    const age = parseFloat(document.getElementById('cal-age').value);
+    const gender = document.getElementById('cal-gender').value;
+    if(!w||!h||!age){ alert('Fill all fields!'); return; }
+    
+    let bmr = (10*w) + (6.25*h) - (5*age);
+    bmr += (gender==='male') ? 5 : -161;
+    const maintain = Math.round(bmr * 1.55);
+    
+    document.getElementById('cal-result').classList.remove('hidden');
+    document.getElementById('cal-value').textContent = maintain.toLocaleString();
+}
+
+// ========== GENERATIVE MUSIC SYSTEM ==========
+let audioCtx = null;
+let isPlaying = false;
+let currentCategory = 'chill';
+let musicInterval = null;
+
+const scales = {
+    chill: [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25],
+    romantic: [220.00, 246.94, 261.63, 293.66, 329.63, 349.23, 392.00, 440.00],
+    upbeat: [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25, 587.33, 659.25],
+    focus: [196.00, 220.00, 246.94, 261.63, 293.66, 329.63, 349.23]
+};
+
+const songNames = {
+    chill: ['Chill Vibes','Sunset Dreams','Ocean Breeze','Lazy Sunday','Coffee Shop'],
+    romantic: ['Moonlight','Heartbeats','Eternal Love','Starry Night','Sweet Melody'],
+    upbeat: ['Energy Boost','Morning Run','Happy Day','Party Mode','Good Vibes'],
+    focus: ['Deep Work','Study Flow','Concentration','Mind Space','Zen Mode']
+};
+
+function initAudio(){
+    if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+}
+
+function playTone(freq, duration, type='sine', volume=0.08){
+    if(!audioCtx) return;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(volume, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + duration);
+}
+
+function playBeat(){
+    if(!isPlaying || !audioCtx) return;
+    const scale = scales[currentCategory];
+    const note = scale[Math.floor(Math.random()*scale.length)];
+    const note2 = scale[Math.floor(Math.random()*scale.length)];
+    
+    if(currentCategory === 'chill'){
+        playTone(note, 1.5, 'sine', 0.06);
+        setTimeout(()=>playTone(note2, 1.2, 'triangle', 0.04), 400);
+    } else if(currentCategory === 'romantic'){
+        playTone(note, 2.0, 'sine', 0.08);
+        setTimeout(()=>playTone(note*1.5, 1.5, 'sine', 0.05), 300);
+    } else if(currentCategory === 'upbeat'){
+        playTone(note, 0.4, 'square', 0.05);
+        setTimeout(()=>playTone(100, 0.1, 'sine', 0.12), 0);
+        setTimeout(()=>playTone(note2, 0.4, 'square', 0.05), 250);
+    } else {
+        playTone(note, 3.0, 'sine', 0.06);
+        setTimeout(()=>playTone(note*0.5, 2.5, 'triangle', 0.03), 500);
+    }
+}
+
+function startMusic(){
+    initAudio();
+    if(audioCtx.state === 'suspended') audioCtx.resume();
+    isPlaying = true;
+    document.getElementById('play-btn').textContent = '⏸️';
+    document.getElementById('music-icon').classList.remove('paused');
+    
+    const tempo = currentCategory==='upbeat'? 300 : currentCategory==='focus'? 1500 : 800;
+    if(musicInterval) clearInterval(musicInterval);
+    musicInterval = setInterval(playBeat, tempo);
+}
+
+function stopMusic(){
+    isPlaying = false;
+    document.getElementById('play-btn').textContent = '▶️';
+    document.getElementById('music-icon').classList.add('paused');
+    if(musicInterval) clearInterval(musicInterval);
+}
+
+function toggleMusic(){
+    if(isPlaying) stopMusic();
+    else startMusic();
+}
+
+function changeCategory(cat){
+    currentCategory = cat;
+    const songs = songNames[cat];
+    const song = songs[Math.floor(Math.random()*songs.length)];
+    document.getElementById('song-title').textContent = song;
+    document.getElementById('song-artist').textContent = 'Auto-Generated ' + cat.charAt(0).toUpperCase()+cat.slice(1);
+    if(isPlaying) startMusic();
+}
+
+function nextSong(){
+    const songs = songNames[currentCategory];
+    const song = songs[Math.floor(Math.random()*songs.length)];
+    document.getElementById('song-title').textContent = song;
+}
+function prevSong(){ nextSong(); }
+function setVolume(val){ /* UI feedback only - Web Audio volume control would need gain node refactoring */ }
+
+// Auto-start on first click anywhere (browser policy requires user interaction)
+document.addEventListener('click', function initMusic(){
+    if(!audioCtx){
+        startMusic();
+        document.removeEventListener('click', initMusic);
+    }
+}, {once:true});
+</script>
 </body>
 </html>
