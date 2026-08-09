@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Study Hub - Collaborative Learning Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+:root {
+  --primary:#4f46e5; --primary-hover:#4338ca; --primary-light:#e0e7ff;
+  --success:#10b981; --danger:#ef4444; --warning:#f59e0b;
+  --bg:#f8fafc; --bg-card:#ffffff; --text:#1e293b; --text-muted:#64748b;
+  --border:#e2e8f0; --sidebar:#ffffff; --shadow:0 1px 3px rgba(0,0,0,0.1);
+  --shadow-lg:0 10px 25px rgba(0,0,0,0.1); --radius:12px;
+}
+.dark {
+  --bg:#0f172a; --bg-card:#1e293b; --text:#f1f5f9; --text-muted:#94a3b8;
+  --border:#334155; --sidebar:#1e293b; --shadow:0 1px 3px rgba(0,0,0,0.3);
+  --shadow-lg:0 10px 25px rgba(0,0,0,0.3);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); transition:all 0.3s; overflow:hidden; }
+
+/* AUTH */
+.auth-page { min-height:100vh; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); padding:20px; }
+.auth-box { background:var(--bg-card); border-radius:24px; padding:48px; width:100%; max-width:420px; box-shadow:var(--shadow-lg); animation:slideUp 0.5s ease; }
+@keyframes slideUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+.auth-logo { width:64px; height:64px; background:var(--primary); border-radius:16px; display:flex; align-items:center; justify-content:center; margin:0 auto 24px; }
+.auth-logo i { font-size:28px; color:white; }
+.auth-title { text-align:center; font-size:28px; font-weight:800; margin-bottom:8px; }
+.auth-subtitle { text-align:center; color:var(--text-muted); margin-bottom:32px; font-size:14px; }
+.form-group { margin-bottom:20px; }
+.form-label { display:block; font-size:13px; font-weight:600; margin-bottom:6px; }
+.form-input { width:100%; padding:12px 16px; border:2px solid var(--border); border-radius:10px; background:var(--bg); color:var(--text); font-size:14px; transition:all 0.2s; outline:none; }
+.form-input:focus { border-color:var(--primary); box-shadow:0 0 0 3px var(--primary-light); }
+.password-wrap { position:relative; }
+.toggle-pass { position:absolute; right:12px; top:50%; transform:translateY(-50%); cursor:pointer; color:var(--text-muted); }
+.btn { width:100%; padding:14px; border:none; border-radius:10px; font-size:15px; font-weight:600; cursor:pointer; transition:all 0.2s; display:flex; align-items:center; justify-content:center; gap:8px; }
+.btn-primary { background:var(--primary); color:white; }
+.btn-primary:hover { background:var(--primary-hover); transform:translateY(-1px); }
+.btn-success { background:var(--success); color:white; }
+.auth-footer { text-align:center; margin-top:24px; font-size:14px; color:var(--text-muted); }
+.auth-footer a { color:var(--primary); font-weight:600; cursor:pointer; text-decoration:none; }
+.error-msg { background:#fef2f2; border:1px solid #fecaca; color:#dc2626; padding:10px 14px; border-radius:8px; font-size:13px; margin-bottom:16px; display:none; }
+.error-msg.show { display:block; animation:shake 0.4s; }
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-8px)} 75%{transform:translateX(8px)} }
+
+/* APP LAYOUT */
+.app { display:flex; height:100vh; }
+.sidebar { width:260px; background:var(--sidebar); border-right:1px solid var(--border); display:flex; flex-direction:column; transition:all 0.3s; }
+.sidebar-header { padding:24px; border-bottom:1px solid var(--border); }
+.brand { display:flex; align-items:center; gap:12px; }
+.brand-icon { width:40px; height:40px; background:var(--primary); border-radius:10px; display:flex; align-items:center; justify-content:center; }
+.brand-icon i { color:white; font-size:18px; }
+.brand-text { font-size:20px; font-weight:800; }
+.nav-section { padding:16px; }
+.nav-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-muted); padding:0 12px; margin-bottom:8px; }
+.nav-item { display:flex; align-items:center; gap:12px; padding:10px 12px; border-radius:10px; cursor:pointer; transition:all 0.2s; font-size:14px; font-weight:500; color:var(--text-muted); margin-bottom:2px; border:none; background:none; width:100%; text-align:left; }
+.nav-item:hover { background:var(--bg); color:var(--text); }
+.nav-item.active { background:var(--primary-light); color:var(--primary); font-weight:600; }
+.nav-item i { width:20px; text-align:center; }
+.sidebar-footer { margin-top:auto; padding:16px; border-top:1px solid var(--border); }
+
+.main { flex:1; display:flex; flex-direction:column; overflow:hidden; }
+.topbar { height:64px; background:var(--bg-card); border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; padding:0 24px; }
+.topbar-left { display:flex; align-items:center; gap:16px; }
+.menu-toggle { display:none; background:none; border:none; font-size:20px; color:var(--text); cursor:pointer; }
+.page-title { font-size:20px; font-weight:700; }
+.topbar-right { display:flex; align-items:center; gap:12px; }
+.icon-btn { width:40px; height:40px; border-radius:10px; border:1px solid var(--border); background:var(--bg); color:var(--text); cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.2s; font-size:16px; position:relative; }
+.icon-btn:hover { background:var(--primary-light); color:var(--primary); }
+.icon-btn .badge { position:absolute; top:-2px; right:-2px; width:18px; height:18px; background:var(--danger); color:white; border-radius:50%; font-size:10px; font-weight:700; display:flex; align-items:center; justify-content:center; }
+.user-avatar { width:36px; height:36px; border-radius:50%; background:var(--primary); display:flex; align-items:center; justify-content:center; color:white; font-weight:700; font-size:14px; cursor:pointer; }
+
+.content { flex:1; overflow-y:auto; padding:24px; }
+.content-inner { max-width:1400px; margin:0 auto; }
+
+/* STATS */
+.stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:20px; margin-bottom:24px; }
+.stat-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:24px; display:flex; align-items:center; justify-content:space-between; transition:all 0.2s; }
+.stat-card:hover { transform:translateY(-2px); box-shadow:var(--shadow-lg); }
+.stat-info p { font-size:13px; color:var(--text-muted); margin-bottom:4px; }
+.stat-info h3 { font-size:28px; font-weight:800; }
+.stat-icon { width:48px; height:48px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:20px; color:white; }
+.stat-icon.blue { background:linear-gradient(135deg,#3b82f6,#2563eb); }
+.stat-icon.green { background:linear-gradient(135deg,#10b981,#059669); }
+.stat-icon.purple { background:linear-gradient(135deg,#8b5cf6,#7c3aed); }
+.stat-icon.orange { background:linear-gradient(135deg,#f59e0b,#d97706); }
+
+/* CARDS */
+.card-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:20px; }
+.card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }
+.card-header { padding:20px 24px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+.card-title { font-size:16px; font-weight:700; }
+.card-body { padding:20px 24px; }
+
+/* ACTIVITY */
+.activity-item { display:flex; align-items:center; gap:12px; padding:12px; border-radius:10px; margin-bottom:8px; background:var(--bg); }
+.activity-item:last-child { margin-bottom:0; }
+.activity-icon { width:36px; height:36px; border-radius:50%; background:var(--primary-light); color:var(--primary); display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0; }
+.activity-text { flex:1; }
+.activity-text p { font-size:13px; font-weight:600; }
+.activity-text span { font-size:12px; color:var(--text-muted); }
+
+/* STATUS */
+.status-item { display:flex; align-items:center; justify-content:space-between; padding:12px; border-radius:10px; margin-bottom:8px; background:var(--bg); }
+.status-item:last-child { margin-bottom:0; }
+.status-name { font-size:13px; font-weight:600; }
+.status-badge { font-size:12px; font-weight:700; color:var(--success); }
+
+/* TABLE */
+.table-wrap { overflow-x:auto; }
+table { width:100%; border-collapse:collapse; }
+th { text-align:left; padding:14px 20px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-muted); background:var(--bg); border-bottom:1px solid var(--border); }
+td { padding:14px 20px; font-size:14px; border-bottom:1px solid var(--border); }
+tr:hover td { background:var(--bg); }
+.user-cell { display:flex; align-items:center; gap:12px; }
+.user-avatar-sm { width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg,#667eea,#764ba2); display:flex; align-items:center; justify-content:center; color:white; font-weight:700; font-size:13px; }
+.user-info p { font-weight:600; }
+.user-info span { font-size:12px; color:var(--text-muted); }
+.badge { display:inline-flex; align-items:center; gap:4px; padding:4px 10px; border-radius:20px; font-size:11px; font-weight:700; }
+.badge-admin { background:#ede9fe; color:#7c3aed; }
+.badge-user { background:var(--bg); color:var(--text-muted); }
+.badge-active { background:#d1fae5; color:#059669; }
+.badge-inactive { background:#fee2e2; color:#dc2626; }
+.dark .badge-admin { background:rgba(124,58,237,0.2); }
+.dark .badge-active { background:rgba(5,150,105,0.2); }
+.dark .badge-inactive { background:rgba(220,38,38,0.2); }
+.action-btns { display:flex; gap:6px; }
+.action-btn { width:32px; height:32px; border-radius:8px; border:none; background:var(--bg); color:var(--text-muted); cursor:pointer; transition:all 0.2s; }
+.action-btn:hover { background:var(--primary-light); color:var(--primary); }
+.action-btn.danger:hover { background:#fee2e2; color:var(--danger); }
+
+.search-box { position:relative; margin-bottom:20px; }
+.search-box i { position:absolute; left:14px; top:50%; transform:translateY(-50%); color:var(--text-muted); }
+.search-box input { width:100%; padding:12px 14px 12px 42px; border:1px solid var(--border); border-radius:10px; background:var(--bg); color:var(--text); font-size:14px; outline:none; transition:all 0.2s; }
+.search-box input:focus { border-color:var(--primary); box-shadow:0 0 0 3px var(--primary-light); }
+
+/* CHAT */
+.chat-layout { display:flex; gap:16px; height:calc(100vh - 112px); }
+.chat-sidebar { width:320px; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); display:flex; flex-direction:column; overflow:hidden; }
+.chat-sidebar-header { padding:16px; border-bottom:1px solid var(--border); }
+.chat-sidebar-header-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+.chat-list { flex:1; overflow-y:auto; }
+.chat-item { display:flex; align-items:center; gap:12px; padding:12px 16px; cursor:pointer; transition:all 0.2s; border-left:3px solid transparent; text-align:left; border:none; background:none; width:100%; color:var(--text); }
+.chat-item:hover { background:var(--bg); }
+.chat-item.active { background:var(--primary-light); border-left-color:var(--primary); }
+.chat-avatar { width:44px; height:44px; border-radius:50%; background:linear-gradient(135deg,#667eea,#764ba2); display:flex; align-items:center; justify-content:center; color:white; font-weight:700; font-size:15px; flex-shrink:0; }
+.chat-details { flex:1; min-width:0; }
+.chat-details-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:2px; }
+.chat-name { font-weight:600; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.chat-time { font-size:11px; color:var(--text-muted); flex-shrink:0; }
+.chat-preview { font-size:13px; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.chat-unread { width:20px; height:20px; background:var(--primary); color:white; border-radius:50%; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+
+.chat-window { flex:1; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); display:flex; flex-direction:column; overflow:hidden; }
+.chat-header { padding:16px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+.chat-header-left { display:flex; align-items:center; gap:12px; }
+.chat-header-avatar { width:40px; height:40px; border-radius:50%; background:linear-gradient(135deg,#3b82f6,#2563eb); display:flex; align-items:center; justify-content:center; color:white; font-weight:700; }
+.chat-header-info h4 { font-weight:700; }
+.chat-header-info span { font-size:12px; color:var(--success); }
+.chat-header-actions { display:flex; gap:8px; }
+
+.chat-messages { flex:1; overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:12px; }
+.message { max-width:70%; padding:12px 16px; border-radius:18px; font-size:14px; line-height:1.5; animation:msgPop 0.2s ease; }
+@keyframes msgPop { from{opacity:0;transform:scale(0.95)} to{opacity:1;transform:scale(1)} }
+.message.own { align-self:flex-end; background:var(--primary); color:white; border-bottom-right-radius:4px; }
+.message.other { align-self:flex-start; background:var(--bg); color:var(--text); border-bottom-left-radius:4px; }
+.message-time { font-size:11px; margin-top:4px; opacity:0.7; }
+.chat-empty { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; color:var(--text-muted); }
+.chat-empty i { font-size:48px; margin-bottom:16px; color:var(--primary); opacity:0.5; }
+
+.chat-input-area { padding:12px 16px; border-top:1px solid var(--border); display:flex; align-items:center; gap:10px; }
+.chat-input { flex:1; padding:12px 16px; border:1px solid var(--border); border-radius:24px; background:var(--bg); color:var(--text); font-size:14px; outline:none; transition:all 0.2s; }
+.chat-input:focus { border-color:var(--primary); box-shadow:0 0 0 3px var(--primary-light); }
+.chat-send-btn { width:40px; height:40px; border-radius:50%; background:var(--primary); color:white; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.2s; }
+.chat-send-btn:hover { background:var(--primary-hover); transform:scale(1.05); }
+.chat-send-btn:disabled { opacity:0.5; cursor:not-allowed; transform:none; }
+
+/* STUDY ROOMS */
+.rooms-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+.room-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:24px; transition:all 0.2s; cursor:pointer; }
+.room-card:hover { transform:translateY(-3px); box-shadow:var(--shadow-lg); border-color:var(--primary); }
+.room-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+.room-subject { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--primary); background:var(--primary-light); padding:4px 10px; border-radius:20px; }
+.room-status { width:10px; height:10px; border-radius:50%; background:var(--success); }
+.room-status.offline { background:var(--text-muted); }
+.room-title { font-size:18px; font-weight:700; margin-bottom:6px; }
+.room-desc { font-size:14px; color:var(--text-muted); margin-bottom:16px; line-height:1.5; }
+.room-footer { display:flex; align-items:center; justify-content:space-between; }
+.room-users { display:flex; align-items:center; gap:6px; font-size:13px; color:var(--text-muted); }
+.room-join { padding:8px 16px; background:var(--primary); color:white; border:none; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; transition:all 0.2s; }
+.room-join:hover { background:var(--primary-hover); }
+
+/* LEADERBOARD */
+.leaderboard-list { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }
+.lb-row { display:flex; align-items:center; padding:14px 20px; border-bottom:1px solid var(--border); transition:all 0.2s; }
+.lb-row:hover { background:var(--bg); }
+.lb-rank { width:36px; font-size:18px; font-weight:800; text-align:center; }
+.lb-rank.gold { color:#fbbf24; }
+.lb-rank.silver { color:#9ca3af; }
+.lb-rank.bronze { color:#b45309; }
+.lb-user { flex:1; display:flex; align-items:center; gap:12px; }
+.lb-avatar { width:40px; height:40px; border-radius:50%; background:linear-gradient(135deg,#667eea,#764ba2); display:flex; align-items:center; justify-content:center; color:white; font-weight:700; }
+.lb-name { font-weight:600; }
+.lb-subject { font-size:12px; color:var(--text-muted); }
+.lb-score { font-size:18px; font-weight:800; color:var(--primary); }
+.lb-badge { margin-left:12px; font-size:20px; }
+
+/* QUIZZES */
+.quiz-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:24px; margin-bottom:16px; }
+.quiz-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+.quiz-title { font-size:18px; font-weight:700; }
+.quiz-meta { display:flex; gap:16px; font-size:13px; color:var(--text-muted); margin-bottom:16px; }
+.quiz-meta span { display:flex; align-items:center; gap:6px; }
+.quiz-btn { padding:10px 20px; background:var(--primary); color:white; border:none; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; transition:all 0.2s; }
+.quiz-btn:hover { background:var(--primary-hover); }
+
+/* NOTES */
+.notes-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+.note-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:20px; transition:all 0.2s; }
+.note-card:hover { box-shadow:var(--shadow-lg); }
+.note-tags { display:flex; gap:6px; margin-bottom:10px; flex-wrap:wrap; }
+.note-tag { font-size:11px; padding:3px 8px; border-radius:4px; background:var(--primary-light); color:var(--primary); font-weight:600; }
+.note-title { font-size:16px; font-weight:700; margin-bottom:8px; }
+.note-excerpt { font-size:13px; color:var(--text-muted); line-height:1.6; margin-bottom:12px; }
+.note-footer { display:flex; align-items:center; justify-content:space-between; font-size:12px; color:var(--text-muted); }
+
+/* FORUM */
+.forum-post { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:20px; margin-bottom:16px; transition:all 0.2s; }
+.forum-post:hover { border-color:var(--primary); }
+.forum-post-header { display:flex; align-items:center; gap:12px; margin-bottom:12px; }
+.forum-post-title { font-size:18px; font-weight:700; margin-bottom:8px; }
+.forum-post-body { font-size:14px; color:var(--text-muted); line-height:1.6; margin-bottom:12px; }
+.forum-post-footer { display:flex; align-items:center; gap:20px; font-size:13px; color:var(--text-muted); }
+.forum-post-footer span { display:flex; align-items:center; gap:6px; cursor:pointer; transition:all 0.2s; }
+.forum-post-footer span:hover { color:var(--primary); }
+
+/* SETTINGS */
+.settings-section { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:24px; margin-bottom:20px; }
+.settings-title { font-size:18px; font-weight:700; margin-bottom:20px; }
+.setting-row { display:flex; align-items:center; justify-content:space-between; padding:14px 0; border-bottom:1px solid var(--border); }
+.setting-row:last-child { border-bottom:none; }
+.setting-info h4 { font-weight:600; margin-bottom:2px; }
+.setting-info p { font-size:13px; color:var(--text-muted); }
+
+.toggle { width:48px; height:26px; background:var(--border); border-radius:13px; position:relative; cursor:pointer; transition:all 0.2s; flex-shrink:0; }
+.toggle.on { background:var(--primary); }
+.toggle::after { content:''; position:absolute; width:22px; height:22px; background:white; border-radius:50%; top:2px; left:2px; transition:all 0.2s; box-shadow:0 1px 3px rgba(0,0,0,0.2); }
+.toggle.on::after { left:24px; }
+
+/* DROPDOWNS */
+.notif-dropdown { position:absolute; top:50px; right:0; width:360px; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow-lg); z-index:100; display:none; }
+.notif-dropdown.show { display:block; animation:dropdownSlide 0.2s ease; }
+@keyframes dropdownSlide { from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:translateY(0)} }
+.notif-header { padding:16px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+.notif-header h4 { font-weight:700; }
+.notif-header span { font-size:12px; color:var(--primary); cursor:pointer; }
+.notif-list { max-height:400px; overflow-y:auto; }
+.notif-item { display:flex; gap:12px; padding:14px 16px; border-bottom:1px solid var(--border); cursor:pointer; transition:all 0.2s; }
+.notif-item:hover { background:var(--bg); }
+.notif-item.unread { background:var(--primary-light); }
+.notif-icon { width:36px; height:36px; border-radius:50%; background:var(--bg); display:flex; align-items:center; justify-content:center; color:var(--primary); font-size:14px; flex-shrink:0; }
+.notif-content { flex:1; }
+.notif-content p { font-size:13px; font-weight:600; margin-bottom:2px; }
+.notif-content span { font-size:12px; color:var(--text-muted); }
+
+.profile-dropdown { position:absolute; top:50px; right:0; width:200px; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow-lg); z-index:100; display:none; }
+.profile-dropdown.show { display:block; }
+.profile-dropdown-item { display:flex; align-items:center; gap:10px; padding:12px 16px; cursor:pointer; transition:all 0.2s; font-size:14px; }
+.profile-dropdown-item:hover { background:var(--bg); }
+.profile-dropdown-item i { width:20px; text-align:center; color:var(--text-muted); }
+.profile-dropdown-divider { height:1px; background:var(--border); margin:4px 0; }
+
+/* MODAL */
+.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.5); display:none; align-items:center; justify-content:center; z-index:200; backdrop-filter:blur(4px); }
+.modal-overlay.show { display:flex; }
+.modal { background:var(--bg-card); border-radius:20px; width:90%; max-width:600px; max-height:80vh; overflow:hidden; box-shadow:var(--shadow-lg); animation:modalPop 0.3s ease; }
+@keyframes modalPop { from{opacity:0;transform:scale(0.9)} to{opacity:1;transform:scale(1)} }
+.modal-header { padding:20px 24px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+.modal-header h3 { font-size:20px; font-weight:700; }
+.modal-close { width:36px; height:36px; border-radius:50%; border:none; background:var(--bg); color:var(--text); cursor:pointer; font-size:18px; transition:all 0.2s; }
+.modal-close:hover { background:var(--danger); color:white; }
+.modal-body { padding:24px; overflow-y:auto; max-height:60vh; }
+.quiz-question { margin-bottom:24px; }
+.quiz-question h4 { font-size:16px; font-weight:700; margin-bottom:12px; }
+.quiz-option { display:flex; align-items:center; gap:10px; padding:12px 16px; border:2px solid var(--border); border-radius:10px; margin-bottom:8px; cursor:pointer; transition:all 0.2s; }
+.quiz-option:hover { border-color:var(--primary); background:var(--primary-light); }
+.quiz-option.selected { border-color:var(--primary); background:var(--primary-light); }
+.quiz-option input { width:18px; height:18px; accent-color:var(--primary); }
+.modal-footer { padding:16px 24px; border-top:1px solid var(--border); display:flex; justify-content:flex-end; gap:10px; }
+.modal-btn { padding:10px 20px; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; border:none; transition:all 0.2s; }
+.modal-btn-secondary { background:var(--bg); color:var(--text); }
+.modal-btn-primary { background:var(--primary); color:white; }
+
+/* TOAST */
+.toast-container { position:fixed; top:20px; right:20px; z-index:300; display:flex; flex-direction:column; gap:10px; }
+.toast { background:var(--bg-card); border:1px solid var(--border); border-radius:10px; padding:14px 20px; box-shadow:var(--shadow-lg); display:flex; align-items:center; gap:12px; animation:toastSlide 0.3s ease; min-width:300px; }
+@keyframes toastSlide { from{opacity:0;transform:translateX(100%)} to{opacity:1;transform:translateX(0)} }
+.toast-icon { width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px; }
+.toast-success .toast-icon { background:#d1fae5; color:var(--success); }
+.toast-error .toast-icon { background:#fee2e2; color:var(--danger); }
+.toast-info .toast-icon { background:var(--primary-light); color:var(--primary); }
+.toast-content h4 { font-size:14px; font-weight:600; }
+.toast-content p { font-size:13px; color:var(--text-muted); }
+
+/* RESPONSIVE */
+@media (max-width:1024px) {
+  .stats-grid { grid-template-columns:repeat(2,1fr); }
+  .rooms-grid, .notes-grid { grid-template-columns:repeat(2,1fr); }
+}
+@media (max-width:768px) {
+  .sidebar { position:fixed; left:-260px; top:0; bottom:0; z-index:50; height:100vh; }
+  .sidebar.open { left:0; }
+  .menu-toggle { display:flex; }
+  .stats-grid, .card-grid, .rooms-grid, .notes-grid { grid-template-columns:1fr; }
+  .chat-layout { flex-direction:column; }
+  .chat-sidebar { width:100%; height:200px; }
+  .auth-box { padding:32px 24px; }
+}
+.hidden { display:none !important; }
+.relative { position:relative; }
+</style>
+</head>
+<body>
+
+<!-- AUTH: LOGIN -->
+<div id="page-login" class="auth-page">
+  <div class="auth-box">
+    <div class="auth-logo"><i class="fas fa-book-open"></i></div>
+    <h1 class="auth-title">Welcome Back</h1>
+    <p class="auth-subtitle">Sign in to continue your learning journey</p>
+    <div class="error-msg" id="login-error"></div>
+    <form id="login-form">
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input type="email" class="form-input" id="login-email" placeholder="you@example.com" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <div class="password-wrap">
+          <input type="password" class="form-input" id="login-password" placeholder="••••••••" required>
+          <span class="toggle-pass" onclick="togglePass('login-password',this)"><i class="fas fa-eye"></i></span>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary" id="login-btn"><i class="fas fa-sign-in-alt"></i> Sign In</button>
+    </form>
+    <p class="auth-footer">Don't have an account? <a onclick="showPage('register')">Create one</a></p>
+  </div>
+</div>
+
+<!-- AUTH: REGISTER -->
+<div id="page-register" class="auth-page hidden">
+  <div class="auth-box">
+    <div class="auth-logo" style="background:var(--success);"><i class="fas fa-user-plus"></i></div>
+    <h1 class="auth-title">Create Account</h1>
+    <p class="auth-subtitle">Join our community of learners</p>
+    <div class="error-msg" id="register-error"></div>
+    <form id="register-form">
+      <div class="form-group"><label class="form-label">Full Name</label><input type="text" class="form-input" id="reg-name" placeholder="John Doe" required></div>
+      <div class="form-group"><label class="form-label">Email Address</label><input type="email" class="form-input" id="reg-email" placeholder="you@example.com" required></div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <div class="password-wrap">
+          <input type="password" class="form-input" id="reg-password" placeholder="••••••••" required>
+          <span class="toggle-pass" onclick="togglePass('reg-password',this)"><i class="fas fa-eye"></i></span>
+        </div>
+      </div>
+      <div class="form-group"><label class="form-label">Confirm Password</label><input type="password" class="form-input" id="reg-confirm" placeholder="••••••••" required></div>
+      <button type="submit" class="btn btn-success" id="register-btn"><i class="fas fa-user-plus"></i> Create Account</button>
+    </form>
+    <p class="auth-footer">Already have an account? <a onclick="showPage('login')">Sign in</a></p>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="page-app" class="app hidden">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="brand"><div class="brand-icon"><i class="fas fa-book-open"></i></div><span class="brand-text">StudyHub</span></div>
+      <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);text-align:center;">
+        <p style="font-size:11px;color:var(--text-muted);margin-bottom:2px;">Developed by</p>
+        <p style="font-size:16px;font-weight:800;color:var(--primary);">Laxman Shahi</p>
+      </div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Main</div>
+      <button class="nav-item active" data-page="chat" onclick="navigate('chat')"><i class="fas fa-comments"></i> Chat</button>
+      <button class="nav-item" data-page="study-rooms" onclick="navigate('study-rooms')"><i class="fas fa-door-open"></i> Study Rooms</button>
+      <button class="nav-item" data-page="leaderboard" onclick="navigate('leaderboard')"><i class="fas fa-trophy"></i> Leaderboard</button>
+      <button class="nav-item" data-page="notes" onclick="navigate('notes')"><i class="fas fa-sticky-note"></i> Notes</button>
+      <button class="nav-item" data-page="quizzes" onclick="navigate('quizzes')"><i class="fas fa-question-circle"></i> Quizzes</button>
+      <button class="nav-item" data-page="forum" onclick="navigate('forum')"><i class="fas fa-users"></i> Forum</button>
+    </div>
+    <div class="nav-section" id="admin-nav" style="display:none;">
+      <div class="nav-label">Admin</div>
+      <button class="nav-item" data-page="admin-dashboard" onclick="navigate('admin-dashboard')"><i class="fas fa-shield-alt"></i> Dashboard</button>
+      <button class="nav-item" data-page="admin-users" onclick="navigate('admin-users')"><i class="fas fa-users-cog"></i> Users</button>
+    </div>
+    <div class="sidebar-footer">
+      <button class="nav-item" onclick="toggleTheme()"><i class="fas fa-moon" id="theme-icon"></i> <span id="theme-text">Dark Mode</span></button>
+      <button class="nav-item" onclick="navigate('settings')"><i class="fas fa-cog"></i> Settings</button>
+      <button class="nav-item" onclick="logout()" style="color:var(--danger);"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-left">
+        <button class="icon-btn menu-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+        <h2 class="page-title" id="page-title">Chat</h2>
+      </div>
+      <div class="topbar-right">
+        <div class="relative">
+          <button class="icon-btn" onclick="toggleNotifs()"><i class="fas fa-bell"></i><span class="badge" id="notif-badge">3</span></button>
+          <div class="notif-dropdown" id="notif-dropdown">
+            <div class="notif-header"><h4>Notifications</h4><span onclick="markAllRead()">Mark all read</span></div>
+            <div class="notif-list" id="notif-list"></div>
+          </div>
+        </div>
+        <div class="relative">
+          <div class="user-avatar" id="user-avatar" onclick="toggleProfile()">JD</div>
+          <div class="profile-dropdown" id="profile-dropdown">
+            <div class="profile-dropdown-item" onclick="navigate('settings')"><i class="fas fa-cog"></i> Settings</div>
+            <div class="profile-dropdown-item" onclick="navigate('profile')"><i class="fas fa-user"></i> Profile</div>
+            <div class="profile-dropdown-divider"></div>
+            <div class="profile-dropdown-item" onclick="logout()" style="color:var(--danger);"><i class="fas fa-sign-out-alt"></i> Logout</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="content"><div class="content-inner" id="content-area"></div></div>
+  </div>
+</div>
+
+<!-- Quiz Modal -->
+<div class="modal-overlay" id="quiz-modal">
+  <div class="modal">
+    <div class="modal-header"><h3 id="modal-title">Quiz</h3><button class="modal-close" onclick="closeQuiz()"><i class="fas fa-times"></i></button></div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-footer">
+      <button class="modal-btn modal-btn-secondary" onclick="closeQuiz()">Cancel</button>
+      <button class="modal-btn modal-btn-primary" onclick="submitQuiz()">Submit Quiz</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toast-container"></div>
+
+<script>
+// ========== STATE ==========
+let currentUser = null;
+let currentPage = 'chat';
+let darkMode = false;
+let activeConversation = null;
+let messages = {};
+let quizAnswers = {};
+let currentQuizId = null;
+
+// Demo Data
+const conversations = [
+  {id:"1",name:"General Chat",lastMessage:"Hey everyone! How is the project going?",unread:2,time:"2m"},
+  {id:"2",name:"Math Study Group",lastMessage:"Can someone explain calculus integration?",unread:0,time:"1h"},
+  {id:"3",name:"Project Team Alpha",lastMessage:"Meeting scheduled for 3 PM today",unread:5,time:"30m"},
+  {id:"4",name:"Alice Brown",lastMessage:"Thanks for helping me with the assignment!",unread:0,time:"2h"},
+  {id:"5",name:"Study Room A",lastMessage:"Join the live session now",unread:1,time:"5m"},
+  {id:"6",name:"Physics Nerds",lastMessage:"Quantum mechanics discussion",unread:0,time:"1d"},
+];
+
+const studyRooms = [
+  {id:1,name:"Advanced Calculus",subject:"Mathematics",desc:"Deep dive into multivariable calculus and differential equations",users:12,max:20,active:true},
+  {id:2,name:"Organic Chemistry",subject:"Chemistry",desc:"Study group for organic chemistry reactions and mechanisms",users:8,max:15,active:true},
+  {id:3,name:"Data Structures",subject:"Computer Science",desc:"Algorithms, trees, graphs, and dynamic programming",users:24,max:30,active:true},
+  {id:4,name:"World History",subject:"History",desc:"Discussion on major historical events and their impacts",users:5,max:25,active:false},
+  {id:5,name:"Machine Learning",subject:"AI/ML",desc:"Neural networks, deep learning, and practical implementations",users:18,max:20,active:true},
+  {id:6,name:"Literature Club",subject:"English",desc:"Book discussions and creative writing workshops",users:7,max:15,active:true},
+];
+
+const leaderboardData = [
+  {rank:1,name:"Sarah Johnson",subject:"Mathematics",score:2450,badge:"🥇"},
+  {rank:2,name:"Mike Chen",subject:"Computer Science",score:2380,badge:"🥈"},
+  {rank:3,name:"Emma Watson",subject:"Physics",score:2290,badge:"🥉"},
+  {rank:4,name:"David Park",subject:"Chemistry",score:2150,badge:""},
+  {rank:5,name:"Lisa Wang",subject:"Biology",score:2100,badge:""},
+  {rank:6,name:"James Miller",subject:"History",score:1980,badge:""},
+  {rank:7,name:"Anna Lee",subject:"Mathematics",score:1920,badge:""},
+  {rank:8,name:"Tom Brown",subject:"English",score:1850,badge:""},
+];
+
+const quizzes = [
+  {id:1,title:"Calculus Fundamentals",subject:"Mathematics",questions:10,time:15,attempts:234,avgScore:78},
+  {id:2,title:"Python Basics",subject:"Computer Science",questions:15,time:20,attempts:567,avgScore:85},
+  {id:3,title:"World War II",subject:"History",questions:12,time:18,attempts:189,avgScore:72},
+  {id:4,title:"Organic Chemistry",subject:"Chemistry",questions:20,time:25,attempts:145,avgScore:65},
+];
+
+const quizQuestions = {
+  1:[
+    {q:"What is the derivative of x²?",options:["x","2x","x²","2"],correct:1},
+    {q:"∫ 2x dx equals?",options:["x² + C","x²","2x² + C","x + C"],correct:0},
+    {q:"What is lim(x→0) sin(x)/x?",options:["0","1","∞","undefined"],correct:1},
+  ],
+  2:[
+    {q:"What is the output of print(2 ** 3)?",options:["6","8","9","5"],correct:1},
+    {q:"Which is used to define a function in Python?",options:["func","def","function","define"],correct:1},
+    {q:"What is the type of [1, 2, 3]?",options:["tuple","list","array","set"],correct:1},
+  ],
+};
+
+const notes = [
+  {id:1,title:"Linear Algebra Summary",subject:"Mathematics",excerpt:"Comprehensive notes covering matrices, vectors, eigenvalues, and linear transformations...",tags:["math","linear-algebra"],author:"Sarah J.",likes:45},
+  {id:2,title:"React Hooks Guide",subject:"Computer Science",excerpt:"Complete guide to useState, useEffect, useContext, and custom hooks with examples...",tags:["react","frontend"],author:"Mike C.",likes:128},
+  {id:3,title:"Cell Biology Notes",subject:"Biology",excerpt:"Detailed notes on cell structure, organelles, membrane transport, and cell division...",tags:["biology","cells"],author:"Lisa W.",likes:67},
+  {id:4,title:"Chemical Bonding",subject:"Chemistry",excerpt:"Ionic, covalent, and metallic bonding explained with diagrams and examples...",tags:["chemistry","bonding"],author:"David P.",likes:34},
+  {id:5,title:"Shakespeare Analysis",subject:"English",excerpt:"Critical analysis of Hamlet, Macbeth, and Romeo and Juliet themes and characters...",tags:["literature","shakespeare"],author:"Tom B.",likes:89},
+  {id:6,title:"Quantum Mechanics Intro",subject:"Physics",excerpt:"Basic principles of quantum mechanics, wave-particle duality, and Schrödinger equation...",tags:["physics","quantum"],author:"Emma W.",likes:156},
+];
+
+const forumPosts = [
+  {id:1,title:"Best resources for learning Calculus?",content:"I am struggling with calculus concepts. Can anyone recommend good online resources or textbooks?",author:"John Doe",category:"Mathematics",upvotes:24,replies:8,time:"2h ago"},
+  {id:2,title:"Study group for Finals - Join us!",content:"We are organizing a study group for final exams. All subjects welcome. Meeting daily at 7 PM.",author:"Jane Smith",category:"General",upvotes:56,replies:23,time:"5h ago"},
+  {id:3,title:"How to stay focused while studying?",content:"I keep getting distracted by my phone. Any tips for maintaining focus during long study sessions?",author:"Bob Wilson",category:"Productivity",upvotes:89,replies:45,time:"1d ago"},
+  {id:4,title:"Python vs Java for beginners?",content:"Which programming language would you recommend for someone just starting out in CS?",author:"Alice Brown",category:"Computer Science",upvotes:34,replies:19,time:"3h ago"},
+];
+
+const notifications = [
+  {id:1,title:"New message from Alice",content:"Hey, can you help me with the assignment?",time:"2m ago",read:false,icon:"fa-comment"},
+  {id:2,title:"Quiz reminder",content:"Calculus quiz starts in 30 minutes!",time:"25m ago",read:false,icon:"fa-clock"},
+  {id:3,title:"Study room invite",content:"You were invited to join Machine Learning room",time:"1h ago",read:false,icon:"fa-door-open"},
+  {id:4,title:"New note published",content:"Sarah shared new notes on Linear Algebra",time:"3h ago",read:true,icon:"fa-sticky-note"},
+  {id:5,title:"Achievement unlocked!",content:"You completed 5 quizzes this week!",time:"1d ago",read:true,icon:"fa-trophy"},
+];
+
+// ========== AUTH ==========
+function showPage(page) {
+  document.querySelectorAll('.auth-page, #page-app').forEach(el => el.classList.add('hidden'));
+  if (page === 'app') {
+    document.getElementById('page-app').classList.remove('hidden');
+    renderPage(currentPage);
+  } else {
+    document.getElementById('page-' + page).classList.remove('hidden');
+  }
+}
+
+function togglePass(id, btn) {
+  const input = document.getElementById(id);
+  const icon = btn.querySelector('i');
+  if (input.type === 'password') {
+    input.type = 'text';
+    icon.classList.replace('fa-eye', 'fa-eye-slash');
+  } else {
+    input.type = 'password';
+    icon.classList.replace('fa-eye-slash', 'fa-eye');
+  }
+}
+
+document.getElementById('login-form').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const email = document.getElementById('login-email').value;
+  const pass = document.getElementById('login-password').value;
+  const btn = document.getElementById('login-btn');
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
+  btn.disabled = true;
+  setTimeout(() => {
+    if (email && pass.length >= 4) {
+      currentUser = {id:1, name:"John Doe", email:email, role:"admin", avatar:"JD"};
+      showPage('app');
+      showToast('Welcome back, John!', 'success');
+      updateUserUI();
+    } else {
+      document.getElementById('login-error').textContent = 'Invalid credentials';
+      document.getElementById('login-error').classList.add('show');
+    }
+    btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
+    btn.disabled = false;
+  }, 800);
+});
+
+document.getElementById('register-form').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const name = document.getElementById('reg-name').value;
+  const email = document.getElementById('reg-email').value;
+  const pass = document.getElementById('reg-password').value;
+  const confirm = document.getElementById('reg-confirm').value;
+  if (pass !== confirm) {
+    document.getElementById('register-error').textContent = 'Passwords do not match';
+    document.getElementById('register-error').classList.add('show');
+    return;
+  }
+  const btn = document.getElementById('register-btn');
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
+  btn.disabled = true;
+  setTimeout(() => {
+    currentUser = {id:1, name:name, email:email, role:"user", avatar:name.split(' ').map(n=>n[0]).join('').toUpperCase()};
+    localStorage.setItem('studyhub_user', JSON.stringify(currentUser));
+    showPage('app');
+    showToast('Account created successfully!', 'success');
+    updateUserUI();
+  }, 800);
+});
+
+function logout() {
+  currentUser = null;
+  activeConversation = null;
+  localStorage.removeItem('studyhub_user');
+  showPage('login');
+  document.getElementById('login-email').value = '';
+  document.getElementById('login-password').value = '';
+  document.getElementById('login-error').classList.remove('show');
+  showToast('Logged out successfully', 'info');
+}
+
+function updateUserUI() {
+  document.getElementById('user-avatar').textContent = currentUser.avatar;
+  if (currentUser.role === 'admin') {
+    document.getElementById('admin-nav').style.display = 'block';
+  }
+}
+
+// ========== NAVIGATION ==========
+function navigate(page) {
+  currentPage = page;
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  const activeBtn = document.querySelector('[data-page="' + page + '"]');
+  if (activeBtn) activeBtn.classList.add('active');
+  const titles = {
+    'chat':'Chat','study-rooms':'Study Rooms','leaderboard':'Leaderboard',
+    'notes':'Notes','quizzes':'Quizzes','forum':'Forum',
+    'admin-dashboard':'Admin Dashboard','admin-users':'User Management','settings':'Settings','profile':'Profile'
+  };
+  document.getElementById('page-title').textContent = titles[page] || page;
+  renderPage(page);
+  closeDropdowns();
+  if (window.innerWidth <= 768) {
+    document.getElementById('sidebar').classList.remove('open');
+  }
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+}
+
+// ========== THEME ==========
+function toggleTheme() {
+  darkMode = !darkMode;
+  document.body.classList.toggle('dark');
+  const icon = document.getElementById('theme-icon');
+  const text = document.getElementById('theme-text');
+  if (darkMode) {
+    icon.classList.replace('fa-moon', 'fa-sun');
+    text.textContent = 'Light Mode';
+  } else {
+    icon.classList.replace('fa-sun', 'fa-moon');
+    text.textContent = 'Dark Mode';
+  }
+}
+
+// ========== DROPDOWNS ==========
+function toggleNotifs() {
+  document.getElementById('notif-dropdown').classList.toggle('show');
+  document.getElementById('profile-dropdown').classList.remove('show');
+  renderNotifications();
+}
+
+function toggleProfile() {
+  document.getElementById('profile-dropdown').classList.toggle('show');
+  document.getElementById('notif-dropdown').classList.remove('show');
+}
+
+function closeDropdowns() {
+  document.getElementById('notif-dropdown').classList.remove('show');
+  document.getElementById('profile-dropdown').classList.remove('show');
+}
+
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.relative')) {
+    closeDropdowns();
+  }
+});
+
+function renderNotifications() {
+  const list = document.getElementById('notif-list');
+  const unreadCount = notifications.filter(n => !n.read).length;
+  document.getElementById('notif-badge').textContent = unreadCount;
+  document.getElementById('notif-badge').style.display = unreadCount > 0 ? 'flex' : 'none';
+
+  list.innerHTML = notifications.map(n => `
+    <div class="notif-item ${n.read ? '' : 'unread'}" onclick="markRead(${n.id})">
+      <div class="notif-icon"><i class="fas ${n.icon}"></i></div>
+      <div class="notif-content"><p>${n.title}</p><span>${n.content} · ${n.time}</span></div>
+    </div>
+  `).join('');
+}
+
+function markRead(id) {
+  const n = notifications.find(x => x.id === id);
+  if (n) n.read = true;
+  renderNotifications();
+}
+
+function markAllRead() {
+  notifications.forEach(n => n.read = true);
+  renderNotifications();
+  showToast('All notifications marked as read', 'success');
+}
+
+// ========== TOAST ==========
+function showToast(message, type) {
+  const container = document.getElementById('toast-container');
+  const icons = {success:'fa-check', error:'fa-exclamation-triangle', info:'fa-info-circle'};
+  const toast = document.createElement('div');
+  toast.className = 'toast toast-' + type;
+  toast.innerHTML = `
+    <div class="toast-icon"><i class="fas ${icons[type]}"></i></div>
+    <div class="toast-content"><h4>${type === 'success' ? 'Success' : type === 'error' ? 'Error' : 'Info'}</h4><p>${message}</p></div>
+  `;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
+
+// ========== RENDER PAGES ==========
+function renderPage(page) {
+  const content = document.getElementById('content-area');
+  switch(page) {
+    case 'chat': renderChat(content); break;
+    case 'study-rooms': renderStudyRooms(content); break;
+    case 'leaderboard': renderLeaderboard(content); break;
+    case 'notes': renderNotes(content); break;
+    case 'quizzes': renderQuizzes(content); break;
+    case 'forum': renderForum(content); break;
+    case 'admin-dashboard': renderAdminDashboard(content); break;
+    case 'admin-users': renderAdminUsers(content); break;
+    case 'settings': renderSettings(content); break;
+    case 'profile': renderProfile(content); break;
+    default: renderChat(content);
+  }
+}
+
+function renderChat(container) {
+  let convoHTML = conversations.map(c => `
+    <button class="chat-item ${activeConversation === c.id ? 'active' : ''}" onclick="selectConversation('${c.id}')">
+      <div class="chat-avatar">${c.name.charAt(0)}</div>
+      <div class="chat-details">
+        <div class="chat-details-top"><span class="chat-name">${c.name}</span><span class="chat-time">${c.time}</span></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <span class="chat-preview">${c.lastMessage}</span>
+          ${c.unread > 0 ? `<span class="chat-unread">${c.unread}</span>` : ''}
+        </div>
+      </div>
+    </button>
+  `).join('');
+
+  let messagesHTML = '';
+  if (activeConversation) {
+    const msgs = messages[activeConversation] || [];
+    if (msgs.length === 0) {
+      messagesHTML = `<div class="chat-empty"><i class="fas fa-paper-plane"></i><h3 style="margin-bottom:8px;color:var(--text);">No messages yet</h3><p>Start the conversation!</p></div>`;
+    } else {
+      messagesHTML = msgs.map(m => `
+        <div class="message ${m.own ? 'own' : 'other'}">${m.content}<div class="message-time">${m.time}</div></div>
+      `).join('');
+    }
+  } else {
+    messagesHTML = `<div class="chat-empty"><i class="fas fa-comments"></i><h3 style="margin-bottom:8px;color:var(--text);">Select a conversation</h3><p>Choose a chat from the sidebar to start messaging</p></div>`;
+  }
+
+  const activeConvo = conversations.find(c => c.id === activeConversation);
+
+  container.innerHTML = `
+    <div class="chat-layout">
+      <div class="chat-sidebar">
+        <div class="chat-sidebar-header">
+          <div class="chat-sidebar-header-top">
+            <h3 style="font-weight:700;">Messages</h3>
+            <button class="icon-btn" style="width:32px;height:32px;" onclick="showToast('New chat coming soon!','info')"><i class="fas fa-plus"></i></button>
+          </div>
+          <div class="search-box" style="margin-bottom:0;"><i class="fas fa-search"></i><input type="text" placeholder="Search conversations..." onkeyup="filterConversations(this.value)"></div>
+        </div>
+        <div class="chat-list" id="chat-list">${convoHTML}</div>
+      </div>
+      <div class="chat-window">
+        ${activeConversation ? `
+          <div class="chat-header">
+            <div class="chat-header-left">
+              <div class="chat-header-avatar">${activeConvo.name.charAt(0)}</div>
+              <div class="chat-header-info"><h4>${activeConvo.name}</h4><span><i class="fas fa-circle" style="font-size:8px;margin-right:4px;"></i>Online</span></div>
+            </div>
+            <div class="chat-header-actions">
+              <button class="icon-btn" onclick="showToast('Voice call feature coming soon!','info')"><i class="fas fa-phone"></i></button>
+              <button class="icon-btn" onclick="showToast('Video call feature coming soon!','info')"><i class="fas fa-video"></i></button>
+              <button class="icon-btn" onclick="showToast('More options coming soon!','info')"><i class="fas fa-ellipsis-v"></i></button>
+            </div>
+          </div>
+        ` : ''}
+        <div class="chat-messages" id="chat-messages">${messagesHTML}</div>
+        ${activeConversation ? `
+          <div class="chat-input-area">
+            <button class="icon-btn" onclick="showToast('File upload coming soon!','info')"><i class="fas fa-paperclip"></i></button>
+            <input type="text" class="chat-input" id="chat-input" placeholder="Type a message..." onkeydown="if(event.key==='Enter')sendMessage()">
+            <button class="icon-btn" onclick="showToast('Emoji picker coming soon!','info')"><i class="fas fa-smile"></i></button>
+            <button class="chat-send-btn" id="send-btn" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+          </div>
+        ` : ''}
+      </div>
+    </div>
+  `;
+
+  if (activeConversation) {
+    setTimeout(() => {
+      const msgsDiv = document.getElementById('chat-messages');
+      if (msgsDiv) msgsDiv.scrollTop = msgsDiv.scrollHeight;
+      document.getElementById('chat-input')?.focus();
+    }, 10);
+  }
+}
+
+function selectConversation(id) {
+  activeConversation = id;
+  const conv = conversations.find(c => c.id === id);
+  if (conv) conv.unread = 0;
+  renderPage('chat');
+}
+
+function filterConversations(query) {
+  const items = document.querySelectorAll('.chat-item');
+  items.forEach((item, i) => {
+    const name = conversations[i].name.toLowerCase();
+    item.style.display = name.includes(query.toLowerCase()) ? 'flex' : 'none';
+  });
+}
+
+function sendMessage() {
+  const input = document.getElementById('chat-input');
+  const btn = document.getElementById('send-btn');
+  const text = input.value.trim();
+  if (!text || !activeConversation) return;
+
+  if (!messages[activeConversation]) messages[activeConversation] = [];
+  messages[activeConversation].push({
+    id: Date.now(), content: text, own: true,
+    time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})
+  });
+
+  const conv = conversations.find(c => c.id === activeConversation);
+  conv.lastMessage = text;
+  conv.time = 'Just now';
+
+  input.value = '';
+  renderPage('chat');
+
+  // Simulate reply
+  setTimeout(() => {
+    const replies = ["That is interesting!","I agree with you.","Can you explain more?","Thanks for sharing!","Let me check that.","Good point!"];
+    const reply = replies[Math.floor(Math.random() * replies.length)];
+    messages[activeConversation].push({
+      id: Date.now() + 1, content: reply, own: false,
+      time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})
+    });
+    conv.lastMessage = reply;
+    if (currentPage === 'chat') renderPage('chat');
+  }, 1500 + Math.random() * 2000);
+}
+
+function renderStudyRooms(container) {
+  container.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+      <h2 style="font-size:24px;font-weight:800;">Study Rooms</h2>
+      <button class="quiz-btn" onclick="showToast('Create room feature coming soon!','info')"><i class="fas fa-plus"></i> Create Room</button>
+    </div>
+    <div class="rooms-grid">
+      ${studyRooms.map(r => `
+        <div class="room-card" onclick="joinRoom('${r.name}')">
+          <div class="room-header">
+            <span class="room-subject">${r.subject}</span>
+            <span class="room-status ${r.active ? '' : 'offline'}"></span>
+          </div>
+          <h3 class="room-title">${r.name}</h3>
+          <p class="room-desc">${r.desc}</p>
+          <div class="room-footer">
+            <span class="room-users"><i class="fas fa-users"></i> ${r.users}/${r.max} members</span>
+            <button class="room-join" ${!r.active ? 'disabled style="opacity:0.5;cursor:not-allowed;"' : ''}>${r.active ? 'Join' : 'Offline'}</button>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function joinRoom(name) {
+  showToast('Joined ' + name + ' successfully!', 'success');
+}
+
+function renderLeaderboard(container) {
+  container.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+      <h2 style="font-size:24px;font-weight:800;">Leaderboard</h2>
+      <div style="display:flex;gap:8px;">
+        <button class="icon-btn" onclick="showToast('Filter by subject','info')"><i class="fas fa-filter"></i></button>
+        <button class="icon-btn" onclick="showToast('This week','info')"><i class="fas fa-calendar"></i></button>
+      </div>
+    </div>
+    <div class="leaderboard-list">
+      ${leaderboardData.map(u => `
+        <div class="lb-row">
+          <div class="lb-rank ${u.rank === 1 ? 'gold' : u.rank === 2 ? 'silver' : u.rank === 3 ? 'bronze' : ''}">${u.rank}</div>
+          <div class="lb-user">
+            <div class="lb-avatar">${u.name.split(' ').map(n=>n[0]).join('')}</div>
+            <div><div class="lb-name">${u.name}</div><div class="lb-subject">${u.subject}</div></div>
+          </div>
+          <div class="lb-score">${u.score} pts</div>
+          <div class="lb-badge">${u.badge}</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function renderNotes(container) {
+  container.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+      <h2 style="font-size:24px;font-weight:800;">Study Notes</h2>
+      <button class="quiz-btn" onclick="showToast('Create note feature coming soon!','info')"><i class="fas fa-plus"></i> New Note</button>
+    </div>
+    <div class="notes-grid">
+      ${notes.map(n => `
+        <div class="note-card">
+          <div class="note-tags">${n.tags.map(t => `<span class="note-tag">${t}</span>`).join('')}</div>
+          <h3 class="note-title">${n.title}</h3>
+          <p class="note-excerpt">${n.excerpt}</p>
+          <div class="note-footer">
+            <span><i class="fas fa-user" style="margin-right:4px;"></i>${n.author}</span>
+            <span><i class="fas fa-heart" style="margin-right:4px;color:var(--danger);"></i>${n.likes}</span>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function renderQuizzes(container) {
+  container.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+      <h2 style="font-size:24px;font-weight:800;">Quizzes</h2>
+      <button class="quiz-btn" onclick="showToast('Create quiz feature coming soon!','info')"><i class="fas fa-plus"></i> Create Quiz</button>
+    </div>
+    ${quizzes.map(q => `
+      <div class="quiz-card">
+        <div class="quiz-header"><h3 class="quiz-title">${q.title}</h3><span class="badge" style="background:var(--primary-light);color:var(--primary);">${q.subject}</span></div>
+        <div class="quiz-meta">
+          <span><i class="fas fa-question-circle"></i> ${q.questions} questions</span>
+          <span><i class="fas fa-clock"></i> ${q.time} min</span>
+          <span><i class="fas fa-users"></i> ${q.attempts} attempts</span>
+          <span><i class="fas fa-chart-line"></i> Avg: ${q.avgScore}%</span>
+        </div>
+        <button class="quiz-btn" onclick="startQuiz(${q.id})">Start Quiz</button>
+      </div>
+    `).join('')}
+  `;
+}
+
+function startQuiz(id) {
+  currentQuizId = id;
+  quizAnswers = {};
+  const quiz = quizzes.find(q => q.id === id);
+  const questions = quizQuestions[id] || [];
+  document.getElementById('modal-title').textContent = quiz.title;
+  document.getElementById('modal-body').innerHTML = questions.map((q, idx) => `
+    <div class="quiz-question">
+      <h4>Q${idx + 1}. ${q.q}</h4>
+      ${q.options.map((opt, oidx) => `
+        <div class="quiz-option ${quizAnswers[idx] === oidx ? 'selected' : ''}" onclick="selectAnswer(${idx}, ${oidx})">
+          <input type="radio" name="q${idx}" ${quizAnswers[idx] === oidx ? 'checked' : ''}>
+          <span>${opt}</span>
+        </div>
+      `).join('')}
+    </div>
+  `).join('');
+  document.getElementById('quiz-modal').classList.add('show');
+}
+
+function selectAnswer(qIdx, aIdx) {
+  quizAnswers[qIdx] = aIdx;
+  const options = document.querySelectorAll('.quiz-question:nth-child(' + (qIdx + 1) + ') .quiz-option');
+  options.forEach((opt, i) => {
+    opt.classList.toggle('selected', i === aIdx);
+    opt.querySelector('input').checked = i === aIdx;
+  });
+}
+
+function closeQuiz() {
+  document.getElementById('quiz-modal').classList.remove('show');
+}
+
+function submitQuiz() {
+  const questions = quizQuestions[currentQuizId] || [];
+  let correct = 0;
+  questions.forEach((q, idx) => {
+    if (quizAnswers[idx] === q.correct) correct++;
+  });
+  const score = Math.round((correct / questions.length) * 100);
+  closeQuiz();
+  showToast('Quiz completed! You scored ' + score + '%', score >= 70 ? 'success' : 'info');
+}
+
+function renderForum(container) {
+  container.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+      <h2 style="font-size:24px;font-weight:800;">Discussion Forum</h2>
+      <button class="quiz-btn" onclick="showToast('New post feature coming soon!','info')"><i class="fas fa-plus"></i> New Post</button>
+    </div>
+    ${forumPosts.map(p => `
+      <div class="forum-post">
+        <div class="forum-post-header">
+          <div class="user-avatar-sm">${p.author.split(' ').map(n=>n[0]).join('')}</div>
+          <div><div style="font-weight:600;">${p.author}</div><div style="font-size:12px;color:var(--text-muted);">${p.time} · ${p.category}</div></div>
+        </div>
+        <h3 class="forum-post-title">${p.title}</h3>
+        <p class="forum-post-body">${p.content}</p>
+        <div class="forum-post-footer">
+          <span onclick="this.querySelector('i').classList.toggle('fas');this.querySelector('i').classList.toggle('far');showToast('Upvoted!','success')"><i class="far fa-thumbs-up"></i> ${p.upvotes}</span>
+          <span><i class="fas fa-comment"></i> ${p.replies} replies</span>
+          <span><i class="fas fa-share"></i> Share</span>
+        </div>
+      </div>
+    `).join('')}
+  `;
+}
+
+function renderAdminDashboard(container) {
+  container.innerHTML = `
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px;">
+      <i class="fas fa-shield-alt" style="font-size:28px;color:var(--primary);"></i>
+      <h2 style="font-size:24px;font-weight:800;">Admin Dashboard</h2>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-info"><p>Total Users</p><h3>1,234</h3></div><div class="stat-icon blue"><i class="fas fa-users"></i></div></div>
+      <div class="stat-card"><div class="stat-info"><p>Active Chats</p><h3>89</h3></div><div class="stat-icon green"><i class="fas fa-comments"></i></div></div>
+      <div class="stat-card"><div class="stat-info"><p>Study Rooms</p><h3>45</h3></div><div class="stat-icon purple"><i class="fas fa-door-open"></i></div></div>
+      <div class="stat-card"><div class="stat-info"><p>Daily Active</p><h3>+12%</h3></div><div class="stat-icon orange"><i class="fas fa-chart-line"></i></div></div>
+    </div>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-header"><h3 class="card-title">Recent Activity</h3></div>
+        <div class="card-body">
+          ${[1,2,3,4,5].map(i => `
+            <div class="activity-item">
+              <div class="activity-icon"><i class="fas fa-user"></i></div>
+              <div class="activity-text"><p>New user registered</p><span>${i} minutes ago</span></div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3 class="card-title">System Status</h3></div>
+        <div class="card-body">
+          ${['API Server','Database','Redis Cache','Socket Server'].map(s => `
+            <div class="status-item"><span class="status-name">${s}</span><span class="status-badge"><i class="fas fa-check-circle" style="margin-right:4px;"></i>Operational</span></div>
+          `).join('')}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+const adminUsers = [
+  {id:1,name:"John Doe",email:"john@example.com",role:"admin",status:"active"},
+  {id:2,name:"Jane Smith",email:"jane@example.com",role:"admin",status:"active"},
+  {id:3,name:"Bob Wilson",email:"bob@example.com",role:"user",status:"inactive"},
+  {id:4,name:"Alice Brown",email:"alice@example.com",role:"user",status:"active"},
+  {id:5,name:"Charlie Davis",email:"charlie@example.com",role:"user",status:"active"},
+];
+
+function renderAdminUsers(container) {
+  container.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+      <h2 style="font-size:24px;font-weight:800;">User Management</h2>
+    </div>
+    <div class="search-box"><i class="fas fa-search"></i><input type="text" placeholder="Search users..." onkeyup="filterUsers(this.value)"></div>
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>User</th><th>Role</th><th>Status</th><th style="text-align:right;">Actions</th></tr></thead>
+          <tbody id="users-table-body">
+            ${adminUsers.map(u => `
+              <tr>
+                <td><div class="user-cell"><div class="user-avatar-sm">${u.name.split(' ').map(n=>n[0]).join('')}</div><div class="user-info"><p>${u.name}</p><span>${u.email}</span></div></div></td>
+                <td><span class="badge ${u.role === 'admin' ? 'badge-admin' : 'badge-user'}">${u.role === 'admin' ? '<i class="fas fa-shield-alt"></i> ' : ''}${u.role}</span></td>
+                <td><span class="badge ${u.status === 'active' ? 'badge-active' : 'badge-inactive'}">${u.status}</span></td>
+                <td style="text-align:right;"><div class="action-btns"><button class="action-btn" onclick="showToast('Edit user coming soon!','info')"><i class="fas fa-edit"></i></button><button class="action-btn danger" onclick="showToast('Delete user coming soon!','info')"><i class="fas fa-user-times"></i></button></div></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+function filterUsers(query) {
+  const rows = document.querySelectorAll('#users-table-body tr');
+  rows.forEach((row, i) => {
+    const name = adminUsers[i].name.toLowerCase();
+    const email = adminUsers[i].email.toLowerCase();
+    row.style.display = (name.includes(query.toLowerCase()) || email.includes(query.toLowerCase())) ? '' : 'none';
+  });
+}
+
+function renderSettings(container) {
+  container.innerHTML = `
+    <h2 style="font-size:24px;font-weight:800;margin-bottom:24px;">Settings</h2>
+    <div class="settings-section">
+      <h3 class="settings-title">Appearance</h3>
+      <div class="setting-row">
+        <div class="setting-info"><h4>Dark Mode</h4><p>Switch between light and dark theme</p></div>
+        <div class="toggle ${darkMode ? 'on' : ''}" onclick="toggleTheme();this.classList.toggle('on')"></div>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info"><h4>Compact Mode</h4><p>Reduce spacing and padding</p></div>
+        <div class="toggle" onclick="this.classList.toggle('on');showToast('Compact mode toggled','info')"></div>
+      </div>
+    </div>
+    <div class="settings-section">
+      <h3 class="settings-title">Notifications</h3>
+      <div class="setting-row">
+        <div class="setting-info"><h4>Push Notifications</h4><p>Receive push notifications for messages</p></div>
+        <div class="toggle on" onclick="this.classList.toggle('on');showToast('Push notifications toggled','info')"></div>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info"><h4>Email Notifications</h4><p>Receive email updates and digests</p></div>
+        <div class="toggle on" onclick="this.classList.toggle('on');showToast('Email notifications toggled','info')"></div>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info"><h4>Sound Effects</h4><p>Play sounds for new messages</p></div>
+        <div class="toggle" onclick="this.classList.toggle('on');showToast('Sound effects toggled','info')"></div>
+      </div>
+    </div>
+    <div class="settings-section">
+      <h3 class="settings-title">Account</h3>
+      <div class="setting-row">
+        <div class="setting-info"><h4>Profile Visibility</h4><p>Make your profile visible to other users</p></div>
+        <div class="toggle on" onclick="this.classList.toggle('on');showToast('Visibility toggled','info')"></div>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info"><h4>Two-Factor Authentication</h4><p>Add an extra layer of security</p></div>
+        <div class="toggle" onclick="this.classList.toggle('on');showToast('2FA setup coming soon!','info')"></div>
+      </div>
+    </div>
+  `;
+}
+
+function renderProfile(container) {
+  container.innerHTML = `
+    <div style="max-width:600px;margin:0 auto;">
+      <div style="text-align:center;margin-bottom:32px;">
+        <div style="width:100px;height:100px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;color:white;font-size:36px;font-weight:800;margin:0 auto 16px;">${currentUser ? currentUser.avatar : 'U'}</div>
+        <h2 style="font-size:24px;font-weight:800;">${currentUser ? currentUser.name : 'User'}</h2>
+        <p style="color:var(--text-muted);">${currentUser ? currentUser.email : ''}</p>
+        <span class="badge ${currentUser && currentUser.role === 'admin' ? 'badge-admin' : 'badge-user'}" style="margin-top:8px;">${currentUser ? currentUser.role : 'user'}</span>
+      </div>
+      <div class="settings-section">
+        <h3 class="settings-title">Profile Information</h3>
+        <div class="form-group"><label class="form-label">Full Name</label><input type="text" class="form-input" value="${currentUser ? currentUser.name : ''}"></div>
+        <div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input" value="${currentUser ? currentUser.email : ''}"></div>
+        <div class="form-group"><label class="form-label">Bio</label><textarea class="form-input" rows="3" placeholder="Tell us about yourself..." style="resize:none;"></textarea></div>
+        <button class="btn btn-primary" style="width:auto;padding:10px 24px;" onclick="showToast('Profile updated!','success')"><i class="fas fa-save"></i> Save Changes</button>
+      </div>
+    </div>
+  `;
+}
+
+// Auto-login check on page load
+(function() {
+  const saved = localStorage.getItem('studyhub_user');
+  if (saved) {
+    currentUser = JSON.parse(saved);
+    showPage('app');
+    updateUserUI();
+  }
+})();
+
+// Initialize
+renderNotifications();
+</script>
+</body>
+</html>

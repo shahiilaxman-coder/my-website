@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  mongo:
+    image: mongo:6
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - study-hub
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - MONGODB_URI=mongodb://mongo:27017/studyhub
+      - JWT_SECRET=laxman-shahi-secret-key-2026-super-secure
+      - JWT_EXPIRE=7d
+      - FRONTEND_URL=http://localhost:5500
+    depends_on:
+      - mongo
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    networks:
+      - study-hub
+    command: npm run dev
+
+  frontend:
+    image: nginx:alpine
+    ports:
+      - "5500:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+    networks:
+      - study-hub
+
+volumes:
+  mongo-data:
+
+networks:
+  study-hub:
+    driver: bridge
